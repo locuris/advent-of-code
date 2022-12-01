@@ -17,7 +17,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     summed.sort();
+    summed.reverse();
+    let mut i = 0;
+    let mut backup = 0;
+    for sum in &summed {
+        i += 1;
+        if i > 0 && i < 4 {
+            backup += sum;
+        }
+        continue;
+    }
 
-    println!("{:#?}", summed.last());
+    println!("First Answer: {:#?}", summed.first());
+    println!("Second Answer: {:#?}", backup);
     Ok(())
 }
