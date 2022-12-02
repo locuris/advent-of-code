@@ -4,12 +4,15 @@ use crate::util;
 pub fn print_results() -> Result<(), Box<dyn Error>> {
     let input = util::parse_input("day_2.txt");
     let lines = input.lines();
-    let mut total_score = 0;
+    let mut part_1_score = 0;
+    let mut part_2_score = 0;
     for line in lines {
         let actions = line.split(" ").collect::<Vec<&str>>();
-        total_score += score(actions[0], convert(actions[1]));
+        part_1_score += score(actions[0], convert(actions[1]));
+        part_2_score += score(actions[0], convert_part_ii(actions[1], actions[0]));
     }
-    println!("NEW: {:#?}", total_score);
+    println!("Part 1: {:#?}", part_1_score);
+    println!("Part 2: {:#?}", part_2_score);
     Ok(())
 }
 //ROCK      A | X | +1 | Paper
@@ -31,6 +34,42 @@ fn convert(action: &str) -> &str {
     }
 }
 
+fn convert_part_ii<'a>(action: &'a str, them: &'a str) -> &'a str {
+    match action {
+        "X" => lose_action(them),
+        "Y" => them,
+        "Z" => win_action(them),
+        _ => {
+            println!("Something has gone wrong!");
+            "!"
+        }
+    }
+}
+
+fn win_action(action: &str) -> &str {
+    match action {
+        "A" => "B",
+        "B" => "C",
+        "C" => "A",
+        _ => {
+            println!("Something has gone wrong!");
+            "!"
+        }
+    }
+}
+
+fn lose_action(action: &str) -> &str {
+    match action {
+        "A" => "C",
+        "B" => "A",
+        "C" => "B",
+        _ => {
+            println!("Something has gone wrong!");
+            "!"
+        }
+    }
+}
+
 fn outcome(them: &str, you: &str) -> i32 {
     if them.eq(you) {
         return 3;
@@ -42,7 +81,7 @@ fn outcome(them: &str, you: &str) -> i32 {
 }
 
 fn won(them: &str, you: &str) -> bool {
-    (them == "C" && you == "A") || (them == "B" && you == "C") || (them == "A" && you == "B")
+    you.eq(win_action(them))
 }
 
 fn option_value(option: &str) -> i32 {
