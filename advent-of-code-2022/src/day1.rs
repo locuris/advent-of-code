@@ -25,5 +25,4 @@ pub fn print_result() -> Result<(), Box<dyn Error>> {
     println!("Day 1 - Part 1 - Result: {:#?}", part_1_score);
     println!("Day 1 - Part 2 - Result: {:#?}", part_2_score);
     Ok(())
-
 }
