@@ -17,22 +17,13 @@ pub fn print_result() -> Result<(), Box<dyn Error>> {
     }
 
     summed.sort();
-    summed.reverse();
-    let mut i = 0;
-    let mut backup = 0;
-    for sum in &summed {
-        i += 1;
-        if i > 0 && i < 4 {
-            backup += sum;
-        }
-        continue;
-    }
+    let length = summed.len() - 1;
 
-    match summed.first() {
-        Some(x) => println!("Day 1 - Part 1 - Result: {x}"),
-        None => println!("You buggered up!")
-    }
-    println!("Day 1 - Part 2 - Result: {:#?}", backup);
+    let part_1_score = summed[length];
+    let part_2_score: i32 = summed[length-2..].iter().sum();
+
+    println!("Day 1 - Part 1 - Result: {:#?}", part_1_score);
+    println!("Day 1 - Part 2 - Result: {:#?}", part_2_score);
     Ok(())
 
 }
