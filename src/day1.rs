@@ -29,10 +29,10 @@ pub fn print_result() -> Result<(), Box<dyn Error>> {
     }
 
     match summed.first() {
-        Some(x) => println!("First answer: {x}"),
+        Some(x) => println!("Day 1 - Part 1 - Result: {x}"),
         None => println!("You buggered up!")
     }
-    println!("Second Answer: {:#?}", backup);
+    println!("Day 1 - Part 2 - Result: {:#?}", backup);
     Ok(())
 
 }

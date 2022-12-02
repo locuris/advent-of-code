@@ -11,8 +11,8 @@ pub fn print_results() -> Result<(), Box<dyn Error>> {
         part_1_score += score(actions[0], convert(actions[1]));
         part_2_score += score(actions[0], convert_part_ii(actions[1], actions[0]));
     }
-    println!("Part 1: {:#?}", part_1_score);
-    println!("Part 2: {:#?}", part_2_score);
+    println!("Day 2 - Part 1 - Result: {:#?}", part_1_score);
+    println!("Day 2 - Part 2 - Result: {:#?}", part_2_score);
     Ok(())
 }
 //ROCK      A | X | +1 | Paper
