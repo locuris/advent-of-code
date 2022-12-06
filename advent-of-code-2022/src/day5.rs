@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::util;
 
 pub fn print_results() {
-    let input = util::parse_input("day_5_example.txt");
+    let input = util::parse_input("day_5.txt");
     let groups = Regex::new(r"\n\n").unwrap().split(&input).collect::<Vec<&str>>();
     let mut stacks = parse_stack(groups[0]);
     let actions = parse_actions(groups[1]);
@@ -23,24 +23,17 @@ fn parse_stack(stack: &str) -> Vec<Vec<String>> {
         if line.eq(stack_info) {
             continue;
         }
-        let mut found_bracket = false;
         let mut i = 0;
         for c in line.chars() {
             i += 1;
-            if c.to_string().eq("[") {
-                found_bracket = true;
-            }
-            else if (i + 2) % 4 == 0 {
+            if (i + 2) % 4 == 0 {
                 let stack_number = (i - 2) / 4;
-                if !c.to_string().eq(" ") && found_bracket {
+                if !c.to_string().eq(" ") {
                     match stacks.get_mut(stack_number) {
                         None => stacks.push(vec![c.to_string()]),
                         _ => stacks.get_mut(stack_number).unwrap().push(c.to_string())
                     }
                 }
-            }
-            else if c.to_string().eq("]") {
-                found_bracket = false;
             }
         }
     }
