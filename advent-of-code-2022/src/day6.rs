@@ -4,8 +4,8 @@ pub fn print_results() {
     let input = util::parse_input("day_6.txt");
     let lines = input.lines();
     for line in lines {
-        println!("Day 7 - Part 1 - Result: {}", find_marker(line, 4));
-        println!("Day 7 - Part 2 - Result: {}", find_marker(line, 14));
+        println!("Day 6 - Part 1 - Result: {}", find_marker(line, 4));
+        println!("Day 6 - Part 2 - Result: {}", find_marker(line, 14));
     }
 }
 

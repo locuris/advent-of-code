@@ -1,5 +1,5 @@
 use std::borrow::Borrow;
-use std::ops::{Range, RangeInclusive};
+use std::ops::{RangeInclusive};
 use crate::util;
 
 pub fn print_results() {

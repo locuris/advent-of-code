@@ -11,6 +11,6 @@ fn main() {
     day2::print_results().expect("Something went wrong");
     day3::print_results();
     day4::print_results();
-    //day5::print_results();
+    day5::print_results();
     day6::print_results();
 }
