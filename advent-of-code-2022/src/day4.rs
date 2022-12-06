@@ -36,7 +36,6 @@ fn range_overlaps(range1: &RangeInclusive<i32>, range2: &RangeInclusive<i32>) ->
     range1.contains(range2.start().borrow()) || range1.contains(range2.end().borrow())
 }
 
-
 fn range(input: &str) -> RangeInclusive<i32> {
     let pair = input.split("-").collect::<Vec<&str>>();
     let start: i32 = pair[0].parse::<i32>().unwrap();
