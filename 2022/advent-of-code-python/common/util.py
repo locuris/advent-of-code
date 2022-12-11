@@ -1,4 +1,9 @@
+prefix = 'data/'
 
 
 def get_lines(file):
-    return open('data/' + file).read().splitlines()
+    return open(prefix + file).read().splitlines()
+
+
+def get_string_by_empty_line(file):
+    return open(prefix + file).read().split('\n\n')

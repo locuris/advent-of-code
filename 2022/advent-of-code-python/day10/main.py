@@ -1,5 +1,5 @@
 from common.util import get_lines
-from day10.objects import CPU
+from day10.grid_objects import CPU
 
 
 def print_result(part_ii):
