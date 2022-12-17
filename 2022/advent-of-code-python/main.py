@@ -2,7 +2,10 @@ from day8 import day_8
 from day9 import day9_part2, day_9
 from day10 import main as main10
 from day11 import main as main11
+from day12 import main as main12
 
+def day12():
+    main12.main()
 
 def day8():
     day_8.part_1()
@@ -19,10 +22,7 @@ def day_10():
 
 
 def day_11():
-    #main11.part_i()
-    main11.part_ii()
-    #main11.both_parts()
-
+    main11.print_results(10000)
 
 def test(number, mod):
     cent = int(number / 100)
@@ -38,8 +38,16 @@ def test(number, mod):
     print(f'cent {cent} dec {dec}')
 
 
+def test_ii(cent, dec, value):
+    cent_value = int(value / 100)
+    dec_value = value - (value * 100)
+
+
 if __name__ == '__main__':
-    day_11()
-    #test(6241, 13)
-    #print()
-    #test(3600, 13)
+    day12()
+    #left = Double(1501)
+    # right = Double(101)
+    #answer = left / 3
+    #print(answer)
+    #day_11()
+    # day_11(True)
