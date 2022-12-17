@@ -48,6 +48,16 @@ class Point:
         elif point.y < self.y:
             self.y -= 1
 
+    def is_adjacent(self, point) -> bool:
+        if self.y == point.y:
+            return self.x == point.x - 1 or self.x == point.x + 1
+        elif self.x == point.x:
+            return self.y == point.y - 1 or self.y == point.y + 1
+        return False
+
+    def is_above(self, point) -> bool:
+        return self.y == point.y + 1
+
 
 class Direction(Enum):
     Up = 'U'
