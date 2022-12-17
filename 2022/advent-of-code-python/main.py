@@ -2,7 +2,7 @@ from day8 import day_8
 from day9 import day9_part2, day_9
 from day10 import main as main10
 from day11 import main as main11
-from day12 import main as main12
+from day13 import main as main12
 
 def day12():
     main12.main()

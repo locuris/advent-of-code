@@ -2,7 +2,7 @@ from common.util import get_string_by_empty_line
 
 
 def main():
-    pairs = get_string_by_empty_line('day_12.txt')
+    pairs = get_string_by_empty_line('day_13.txt')
 
     index = 1
     indices = []
