@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class Point:
-    def __init__(self, x, y):
+    def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
 
@@ -11,6 +11,9 @@ class Point:
 
     def __str__(self):
         return '(' + str(self.x) + ', ' + str(self.y) + ')'
+
+    def __hash__(self):
+        return hash('x'+str(self.x)+'y'+str(self.y))
 
     def move(self, direction):
         match direction:
