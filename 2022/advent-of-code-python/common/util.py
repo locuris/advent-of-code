@@ -1,4 +1,4 @@
-prefix = 'data/'
+prefix = '../data/'
 
 alphabet = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

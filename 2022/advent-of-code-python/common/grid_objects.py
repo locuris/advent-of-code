@@ -25,6 +25,12 @@ class Point:
                 self.x += 1
             case Direction.Left:
                 self.x -= 1
+            case Direction.UpLeft:
+                self.y += 1
+                self.x -= 1
+            case Direction.UpRight:
+                self.y += 1
+                self.x += 1
 
     def jump(self, movement, grid):
         for i in range(movement.distance):
@@ -67,6 +73,11 @@ class Direction(Enum):
     Down = 'D'
     Left = 'L'
     Right = 'R'
+    DownLeft = 'DL'
+    DownRight = 'DR'
+    UpLeft = 'UL'
+    UpRight = 'UR'
+    Void = 'X'
 
 
 class Grid:
