@@ -1,8 +1,10 @@
-from common.util import get_string_by_empty_line
+from common.util import get_string_by_empty_line, get_lines
+
+file = 'day_13_example.txt'
 
 
 def main():
-    pairs = get_string_by_empty_line('day_13.txt')
+    pairs = get_string_by_empty_line(file, True)
 
     index = 1
     indices = []
@@ -15,6 +17,29 @@ def main():
         index += 1
     answer = sum(indices)
     print(answer)
+
+
+def main_ii():
+    packets_string = get_lines(file, True, True)
+    packets = {}
+    for packet_string in packets_string:
+        packet = eval(packet_string)
+        if not packet:
+            packets[packet_string] = 0
+            continue
+        packet_value = 0
+        while packet:
+            for inner_packet in packet:
+                if isinstance(inner_packet, int):
+                    packets[packet_string] = inner_packet
+                    packet = []
+                else:
+                    if inner_packet:
+                        packet = inner_packet
+                        continue
+                    else:
+                        break
+    pass
 
 
 def is_in_right_order(left, right):

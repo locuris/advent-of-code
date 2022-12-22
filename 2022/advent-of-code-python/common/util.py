@@ -1,13 +1,24 @@
-prefix = '../data/'
+module_prefix = '../data/'
+main_prefix = 'data/'
+prefix = ''
 
 alphabet = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-def get_lines(file):
+def set_prefix(from_main):
+    global prefix
+    prefix = main_prefix if from_main else module_prefix
+
+
+def get_lines(file, ignore_empty_line=False, from_main=False):
+    set_prefix(from_main)
+    if ignore_empty_line:
+        return open(prefix + file).read().strip('\n\n').splitlines()
     return open(prefix + file).read().splitlines()
 
 
-def get_string_by_empty_line(file):
+def get_string_by_empty_line(file, from_main=False):
+    set_prefix(from_main)
     return open(prefix + file).read().split('\n\n')
 
 
