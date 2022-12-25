@@ -1,6 +1,8 @@
 from common.util import get_string_by_empty_line, get_lines
+from day13.packet import Packet, compare, is_in_right_order
+from functools import cmp_to_key
 
-file = 'day_13_example.txt'
+file = 'day_13.txt'
 
 
 def main():
@@ -21,46 +23,22 @@ def main():
 
 def main_ii():
     packets_string = get_lines(file, True, True)
-    packets = {}
-    for packet_string in packets_string:
-        packet = eval(packet_string)
-        if not packet:
-            packets[packet_string] = 0
+    packets = []
+    for p in packets_string:
+        if p == '':
             continue
-        packet_value = 0
-        while packet:
-            for inner_packet in packet:
-                if isinstance(inner_packet, int):
-                    packets[packet_string] = inner_packet
-                    packet = []
-                else:
-                    if inner_packet:
-                        packet = inner_packet
-                        continue
-                    else:
-                        break
-    pass
+        packets.append(Packet(p))
 
+    first_div = Packet('[[2]]')
+    second_div = Packet('[[6]]')
+    packets.append(first_div)
+    packets.append(second_div)
 
-def is_in_right_order(left, right):
-    left = left if isinstance(left, list) else [left]
-    right = right if isinstance(right, list) else [right]
-    length = max(len(left), len(right))
-    for i in range(length):
-        if i >= len(left):
-            return True
-        if i >= len(right):
-            return False
-        left_item = left[i]
-        right_item = right[i]
-        if isinstance(left_item, list) or isinstance(right_item, list):
-            result = is_in_right_order(left_item, right_item)
-            if isinstance(result, bool):
-                return result
-            else:
-                continue
-        if left_item < right_item:
-            return True
-        if left_item > right_item:
-            return False
-    return 0
+    sorted_packets = sorted(packets, key=cmp_to_key(compare))
+
+    first_div_i = sorted_packets.index(first_div) + 1
+    second_div_i = sorted_packets.index(second_div) + 1
+
+    answer = first_div_i * second_div_i
+
+    print(answer)
