@@ -67,6 +67,9 @@ class Point:
     def is_above(self, point) -> bool:
         return self.y == point.y + 1
 
+    def as_pos_array(self) -> list:
+        return [self.x, self.y]
+
 
 class Direction(Enum):
     Up = 'U'
