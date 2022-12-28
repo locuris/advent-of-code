@@ -9,7 +9,7 @@ def part_1():
     tail_point = Point(0, 0)
     tail_positions = [tail_point]
     knots = 0
-    movements = create_movements(get_lines('day_9_example.txt'))
+    movements = create_movements(get_lines('day_9_example))
     for movement in movements:
         for i in range(movement.distance):
             head_point.move_with_grid(movement.direction, grid)  # = move_head_point(movement.direction, head_point)

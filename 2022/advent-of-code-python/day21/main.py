@@ -1,7 +1,7 @@
 from monkeys import Monkey, root, my_operation, me, reset_monkeys, Operation
 from common.util import get_lines
 
-file = 'day_21_alt.txt'
+file = 'day_21_alt
 
 
 def generate_monkeys() -> {}:

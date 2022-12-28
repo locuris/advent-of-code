@@ -1,7 +1,7 @@
 from common.util import get_string_by_empty_line
 from day11.monkey_objects import Monkeys
 
-file_name = 'day_11.txt'
+file_name = 'day_11
 monkey_string = get_string_by_empty_line(file_name)
 
 

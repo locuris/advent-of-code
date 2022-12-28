@@ -4,7 +4,7 @@ from common.util import get_lines
 key = 811589153
 mix_count = 10
 
-lines = get_lines('day_20.txt')
+lines = get_lines('day_20)
 
 original_list = []
 

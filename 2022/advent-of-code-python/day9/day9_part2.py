@@ -6,7 +6,7 @@ grid = Grid(Point(0, 0), Point(0, 0))
 
 
 def part_ii():
-    lines = get_lines('day_9.txt')
+    lines = get_lines('day_9)
     knot_points = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0),
                    Point(0, 0), Point(0, 0), Point(0, 0)]
     tail_points = [Point(0, 0)]

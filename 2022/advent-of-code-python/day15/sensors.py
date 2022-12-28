@@ -3,9 +3,16 @@ from typing import Type, Set
 from common.grid_objects import Point
 import math
 
+min_x = 0
+max_x = 0
+min_y = 0
+max_y = 0
+max_dist = 0
+
 
 class Sensor:
-    def __init__(self, line: str, grid_size: None | int = None):
+    def __init__(self, line: str):
+        print(f'Creating Sensor {line}')
         line_components = line.split(':')
         sensor_pos = line_components[0][10:].split(', ')
         beacon_pos = line_components[1][22:].split(', ')
@@ -23,8 +30,32 @@ class Sensor:
         self.max_y: int = self.sensor_position.x if \
             self.sensor_position.y > self.beacon_position.y else \
             self.beacon_position.y
+        global min_y, min_x, max_x, max_y
+        if self.min_y < min_y:
+            min_y = self.min_y
+        if self.min_x < min_x:
+            min_x = self.min_x
+        if self.max_y > max_y:
+            max_y = self.max_y
+        if self.max_x > max_x:
+            max_x = self.max_x
+
         self.beacon_distance = self.distance(self.beacon_position)
-        self.grid_size = grid_size
+        global max_dist
+        if self.beacon_distance > max_dist:
+            max_dist = self.beacon_distance
+
+        self.points = []#self.generate_points()
+        self.rad_y_min = self.sensor_position.y - self.beacon_distance
+        self.rad_x_min = self.sensor_position.x - self.beacon_distance
+        self.rad_y_max = self.sensor_position.y + self.beacon_distance
+        self.rad_x_max = self.sensor_position.x + self.beacon_distance
+
+    def between_x(self, x, mod=0) -> bool:
+        return self.rad_x_min + mod <= x <= self.rad_x_max - mod
+
+    def between_y(self, y, mod=0) -> bool:
+        return self.rad_y_min + mod <= y <= self.rad_y_max - mod
 
     def distance(self, point: Point) -> int:
         return abs(self.sensor_position.x - point.x) + abs(self.sensor_position.y - point.y)
@@ -32,30 +63,42 @@ class Sensor:
     def could_contain_beacon(self, point: Point) -> bool:
         return self.distance(point) > self.beacon_distance
 
-    def points_that_could_not_contain_beacon(self,
-                                             possible_points: set[Point],
-                                             impossible_points: set[Point]):
-        x_range = self.sensor_position.x - self.beacon_distance
-        x_start = 0 if x_range <= 0 else x_range
-        x_range += self.beacon_distance * 2
-        x_end = self.grid_size + 1 if x_range >= self.grid_size else x_range + 1
-        y_range = self.sensor_position.y - self.beacon_distance
-        y_start = 0 if y_range <= 0 else y_range
-        y_range += self.beacon_distance * 2
-        y_end = self.grid_size + 1 if y_range >= self.grid_size else y_range + 1
+    def generate_points(self):
+        points = []
+        s_x = self.sensor_position.x
+        s_y = self.sensor_position.y
+        y_mod = 1
+        dist = self.beacon_distance
+        points.append(Point(s_x - dist, s_y))
+        points.append(Point(s_x + dist, s_y))
+        reverse = False
+        x_size = abs((s_x - dist + 1) - (s_x + dist - 1))
+        y_size = abs((s_y - y_mod) - (s_y + y_mod))
+        print(f'Generating points for grid size {x_size * y_size}')
+        print(f'grid dimensions x:{s_x - dist + 1}-{s_x + dist - 1} | y:{s_y - y_mod}-{s_y + y_mod}')
+        point_str = '['
+        for x in range(s_x - dist + 1, s_x + dist):
+            for y in range(s_y - y_mod, s_y + y_mod + 1):
+                point_str += f'Point({x},{y}), '#points.append(Point(x, y))
+            if y_mod == dist:
+                reverse = True
+            y_mod += -1 if reverse else 1
+        point_str = point_str[:-2]
+        print(point_str)
+        print()
+        return points
 
-        for x in range(x_start, x_end):
-            for y in range(y_start, y_end):
+    def points_that_could_not_contain_beacon(self,
+                                             points: set[Point]):
+        for x in range(0, 21):
+            for y in range(0, 21):
                 point = Point(x, y)
-                if point in impossible_points:
+                if point not in points:
                     return
                 if not self.could_contain_beacon(point):
-                    possible_points.discard(point)
-                    impossible_points.add(point)
-                elif point not in impossible_points:
-                    possible_points.add(point)
+                    points.discard(point)
 
-    def print_radius(self, sensor_points, beacon_points):
+    def print_radius(self, sensor_points, beacon_points, pre_gen=False):
         print(f'printing grid for sensor {self.sensor_position}')
         print(f'with beacon at {self.beacon_position} with a distance of {self.beacon_distance}')
         lines = []
@@ -64,15 +107,80 @@ class Sensor:
         x_e = self.sensor_position.x + distance + 1
         y_s = self.sensor_position.y - distance - 1
         y_e = self.sensor_position.y + distance + 1
-        for y in range(y_s, y_e):
+        for y in range(y_s, y_e + 1):
             line = ''
-            for x in range(x_s, x_e):
+            for x in range(x_s, x_e + 1):
                 point = Point(x, y)
                 if point in sensor_points:
                     line += 'S'
                 elif point in beacon_points:
                     line += 'B'
                 else:
-                    line += '.' if self.could_contain_beacon(point) else '#'
+                    if pre_gen:
+                        line += '#' if point in self.points else '.'
+                    else:
+                        line += '.' if self.could_contain_beacon(point) else '#'
             lines.append(line)
         print('\n'.join(lines))
+
+
+def __get_grid_labels(value, vertical=True) -> tuple[str, str, str] | str:
+    minus = ' '
+    if value < 0:
+        minus = '-'
+        value *= -1
+    ten = str(value // 10) if value >= 10 else ' '
+    zero = str(value % 10)
+    if vertical:
+        return minus, ten, zero
+    return minus + ten + zero
+
+
+def print_grid(points, sensor_points, beacon_points, grid_size: None | int = None):
+    if grid_size is None:
+        y_start = min_y - max_dist
+        y_end = max_y + max_dist
+        x_start = min_x - max_dist
+        x_end = max_x + max_dist
+    else:
+        y_start = 0
+        x_start = 0
+        x_end = grid_size
+        y_end = grid_size
+
+    lines = []
+
+    minus_line = '    '
+    ten_line = '    '
+    zero_line = '    '
+
+    for x_p in range(x_start, x_end + 1):
+        minus, ten, zero = __get_grid_labels(x_p)
+        minus_line += minus
+        ten_line += ten
+        zero_line += zero
+
+    if x_start < 0:
+        lines.append(minus_line)
+
+    lines.append(ten_line)
+    lines.append(zero_line)
+    for y in range(y_start, y_end + 1):
+        label = __get_grid_labels(y, False)
+        line = label + ' '
+        for x in range(x_start, x_end + 1):
+            point = Point(x, y)
+            if point in sensor_points:
+                line += 'S'
+            elif point in beacon_points:
+                line += 'B'
+            elif point in points:
+                line += '#'
+            else:
+                line += '.'
+        lines.append(line + ' ' + label)
+    if x_start < 0:
+        lines.append(minus_line)
+    lines.append(ten_line)
+    lines.append(zero_line)
+    print('\n'.join(lines))

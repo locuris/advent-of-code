@@ -3,7 +3,7 @@ from common.util import get_lines
 
 
 def part_i():
-    lines = get_lines('input.txt', from_main=True)
+    lines = get_lines('input, from_main=True)
     snafus = []
     for line in lines:
         snafus.append(Snafu(snafu_value=line))

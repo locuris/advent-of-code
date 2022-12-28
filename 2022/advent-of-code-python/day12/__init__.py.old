@@ -1,7 +1,7 @@
 # from paths import HeightMap, Path, completed_paths, shortest_path
 from common.util import get_lines
 
-# string_map = get_lines('day_12.txt')
+# string_map = get_lines('day_12)
 # print('Starting')
 # height_map = HeightMap(string_map)
 # height_map.start_path_generation()

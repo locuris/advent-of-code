@@ -10,7 +10,7 @@ square_rock = Rock([Point(0, 0), Point(1, 0), Point(0, 1), Point(1, 1)])
 
 rocks = [h_line_rock, plus_rock, reversed_l_rock, v_line_rock, square_rock]
 
-gas = get_input('day_17.txt')
+gas = get_input('day_17)
 
 chamber = Chamber(7, 2, gas, rocks)
 

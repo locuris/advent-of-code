@@ -2,7 +2,7 @@ from common.util import get_string_by_empty_line, get_lines
 from day13.packet import Packet, compare, is_in_right_order
 from functools import cmp_to_key
 
-file = 'day_13.txt'
+file = 'day_13
 
 
 def main():
