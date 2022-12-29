@@ -1,9 +1,9 @@
 from common.util import get_lines
 from common.grid_objects import Point
-from day15.sensors import Sensor, print_grid
+from day15.sensors import Sensor
 import math
 
-file = 'test'
+file = 'input'
 key = 4000000
 
 
@@ -43,43 +43,36 @@ def part_i():
 def part_ii():
     sensors, sensor_points, beacon_points = create_sensors()
 
-    points = set()
+    grid_size = 20 if file == 'test' else key
+
+    sensor_id = 1
 
     for sensor in sensors:
-        points.update(sensor.points)
+        print(f'generating x_ranges for sensor {sensor_id}')
+        sensor_id += 1
+        sensor.generate_x_ranges(grid_size)
 
-    points.update(sensor_points)
-    points.update(beacon_points)
+    possible_points = set()
 
-    grid_size = 20 if file == 'test' else key
-    print(f'points to check: {len(points)}')
-    print(f'grid size: {grid_size * grid_size}')
+    for y in range(0, grid_size + 1):
+        range_points_by_start = []
+        for sensor in sensors:
+            if y not in sensor.x_ranges.keys():
+                continue
+            x_range = sensor.x_ranges[y]
+            range_points_by_start.append(x_range)
+        range_points_by_start = sorted(range_points_by_start, key=lambda r: r.start)
+        ranges_lengths = len(range_points_by_start)
+        stop = range_points_by_start[0].stop
+        for idx in range(1, ranges_lengths):
+            new_start = range_points_by_start[idx].start
+            new_stop = range_points_by_start[idx].stop
+            if new_start <= stop + 1 <= new_stop:
+                stop = new_stop
+        if stop < grid_size:
+            possible_points.add(Point(stop + 1, y))
 
-    possible_points = []
-    column = 0
-    for x in range(0, grid_size + 1):
-        print(f'Checking column {column}')
-        column += 1
-        for y in range(0, grid_size + 1):
-            possible_point = True
-            for sensor in sensors:
-                if not sensor.between_x(x) or not sensor.between_y(y):
-                    continue
-                point = sensor.sensor_position
-                if point.x == x and point.y == y:
-                    possible_point = False
-                    break
-                y_mod = abs(y - point.y)
-                x_mod = abs(x - point.x)
-                if sensor.between_y(y, x_mod) and sensor.between_x(x, y_mod):
-                    possible_point = False
-                    break
-            if possible_point:
-                possible_points.append(Point(x, y))
-
-    possible_points = [p for p in possible_points if p not in sensor_points and p not in beacon_points]
-
-    answer = 'answer: '
+    answer = f'answer: ({len(possible_points)})'
     for point in possible_points:
         freq = (point.x * key) + point.y
         answer += f'| {point} = {freq} '

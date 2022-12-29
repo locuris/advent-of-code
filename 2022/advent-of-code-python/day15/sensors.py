@@ -3,11 +3,28 @@ from typing import Type, Set
 from common.grid_objects import Point
 import math
 
-min_x = 0
-max_x = 0
-min_y = 0
-max_y = 0
 max_dist = 0
+
+class Grid:
+    def __init__(self, grid_size):
+        self.min_x = 0
+        self.max_x = 0
+        self.min_y = 0
+        self.max_y = 0
+        self.grid_size = grid_size
+
+    def update_grid(self, min_x, max_x, min_y, max_y):
+        if self.min_y > min_y:
+            self.min_y = min_y
+        if self.min_x > min_x:
+            self.min_x = min_x
+        if self.max_y < max_y:
+            self.max_y = max_y
+        if self.max_x < max_x:
+            self.max_x = max_x
+
+
+grid = Grid(4000000)
 
 
 class Sensor:
@@ -30,15 +47,6 @@ class Sensor:
         self.max_y: int = self.sensor_position.x if \
             self.sensor_position.y > self.beacon_position.y else \
             self.beacon_position.y
-        global min_y, min_x, max_x, max_y
-        if self.min_y < min_y:
-            min_y = self.min_y
-        if self.min_x < min_x:
-            min_x = self.min_x
-        if self.max_y > max_y:
-            max_y = self.max_y
-        if self.max_x > max_x:
-            max_x = self.max_x
 
         self.beacon_distance = self.distance(self.beacon_position)
         global max_dist
@@ -50,6 +58,27 @@ class Sensor:
         self.rad_x_min = self.sensor_position.x - self.beacon_distance
         self.rad_y_max = self.sensor_position.y + self.beacon_distance
         self.rad_x_max = self.sensor_position.x + self.beacon_distance
+        grid.update_grid(self.rad_x_min, self.rad_x_max, self.rad_y_min, self.rad_y_max)
+        self.x_ranges: dict[int, range] = {}
+
+    def generate_x_ranges(self, grid_size):
+        x_start = self.rad_x_min
+        x_end = self.rad_x_max
+        y_start = self.rad_y_min
+        y_end = self.rad_y_max + 1
+        x_ranges = {}
+        x_mod = self.beacon_distance
+        loop_mod = -1
+        for y in range(y_start, y_end):
+            if 0 <= y <= grid_size:
+                x_s = x_start + x_mod
+                x_e = x_end - x_mod
+                x_ranges[y] = range(x_s, x_e)
+            if x_mod == 0:
+                loop_mod = 1
+            x_mod += loop_mod
+        self.x_ranges = x_ranges
+
 
     def between_x(self, x, mod=0) -> bool:
         return self.rad_x_min + mod <= x <= self.rad_x_max - mod
