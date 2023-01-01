@@ -117,23 +117,24 @@ class You:
 
     def __add_node(self, current_valve: Valve, current_node: AnyNode, minutes_left: int, previous_node_value: int,
                    weight: int = 1, previous_summed_weighted_value: int = 0):
-        for valve in current_valve.joining_valves:
-            if valve.id == current_node.id or valve.id in [n.id for n in current_node.ancestors]:
-                continue
-            current_minutes = minutes_left - 1
-            node_value = previous_node_value
-            current_weight = weight
-            weighted_value = 0
-            if valve.flow_rate > 0:
-                current_minutes -= 1
-                node_value += current_minutes * valve.flow_rate
-                weighted_value = node_value / current_weight
-            summed_weighted_value = previous_summed_weighted_value + weighted_value
-            node = AnyNode(id=valve.id, flow_rate=valve.flow_rate, optimal_value=node_value, wieght=current_weight,
-                           weighted_value=weighted_value, summed_weighted_value=summed_weighted_value, parent=current_node)
-            current_weight += 1
-            # noinspection PyTypeChecker
-            self.__add_node(valve, node, current_minutes, node_value, current_weight, summed_weighted_value)
+
+        # for valve in current_valve.joining_valves:
+        #     if valve.id == current_node.id or valve.id in [n.id for n in current_node.ancestors]:
+        #         continue
+        #     current_minutes = minutes_left - 1
+        #     node_value = previous_node_value
+        #     current_weight = weight
+        #     weighted_value = 0
+        #     if valve.flow_rate > 0:
+        #         current_minutes -= 1
+        #         node_value += current_minutes * valve.flow_rate
+        #         weighted_value = node_value / current_weight
+        #     summed_weighted_value = previous_summed_weighted_value + weighted_value
+        #     node = AnyNode(id=valve.id, flow_rate=valve.flow_rate, optimal_value=node_value, wieght=current_weight,
+        #                    weighted_value=weighted_value, summed_weighted_value=summed_weighted_value, parent=current_node)
+        #     current_weight += 1
+        #     # noinspection PyTypeChecker
+        #     self.__add_node(valve, node, current_minutes, node_value, current_weight, summed_weighted_value)
 
     def generate_paths(self):
         start = self.tunnel_layout.root
