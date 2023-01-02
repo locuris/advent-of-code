@@ -25,5 +25,7 @@ def part_i():
     you = You(valves, starting_valve, minutes_left)
 
     you.generate_tunnel_layout()
+    you.print_simple_paths()
+    you.print_simple_paths(True)
 
     print(f'Pressure released: {you.pressure_released}')

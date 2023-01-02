@@ -1,7 +1,8 @@
 import copy
 import matplotlib.pyplot as plt
 from enum import Enum
-from networkx import Graph, draw, all_simple_paths
+from networkx import Graph, draw, all_simple_paths, all_simple_edge_paths
+from sys import maxsize
 
 valve_id_prefix = 6
 valve_id_length = 2
@@ -91,6 +92,7 @@ class You:
     def __init__(self, valves: dict[str, Valve], starting_valve: str, minutes_left: int):
         self.valves: dict[str, Valve] = valves
         self.current_valve: Valve = self.valves[starting_valve]
+        self.starting_valve_id: str = starting_valve
         self.minutes_left: int = minutes_left
         self.pressure_released: int = 0
         self.tunnel_layout: Graph | None = None
@@ -120,36 +122,39 @@ class You:
         draw(graph, with_labels=True)
         plt.show()
 
-    def print_simple_paths(self):
+    def __add_node(self, current_valve: Valve, graph: Graph):
+        for valve in current_valve.joining_valves:
+            if graph.has_node(valve.id):
+                if not graph.has_edge(current_valve.id, valve.id):
+                    graph.add_edge(current_valve.id, valve.id)
+                    self.__update_valve_distance_and_weight(graph,
+                                                            valve if not valve.id == self.starting_valve_id
+                                                            else current_valve)
+                continue
+            graph.add_node(valve.id)
+            graph.add_edge(current_valve.id, valve.id)
+            self.__update_valve_distance_and_weight(graph, valve)
+            self.__add_node(valve, graph)
+
+    def print_simple_paths(self, use_edge: bool = False):
         end_valves = set()
         for valve_id in self.valves.keys():
             if self.tunnel_layout.degree[valve_id] == 1:
                 end_valves.add(valve_id)
-        paths = [{}]
-        for path in all_simple_paths(self.tunnel_layout, self.current_valve.id, end_valves):
-            new_path = {}
+        path_function = all_simple_edge_paths if use_edge else all_simple_paths
+        for path in path_function(self.tunnel_layout, self.current_valve.id, end_valves):
             print(path)
-            for n in path:
-                new_path[n] = self.valves[n].flow_rate
-            paths.append(new_path)
 
-    def generate_paths(self):
-
-
-
-    def __add_node(self, current_valve: Valve, graph: Graph, distance_from_start: int = 0, weighted_value: int = 0):
-        for valve in current_valve.joining_valves:
-            distance = distance_from_start + 1
-            weight = weighted_value
-            if graph.has_node(valve.id):
-                if graph.nodes[valve.id]['distance_from_start'] > distance:
-                    graph.nodes[valve.id]['distance_from_start'] = distance
-                if not graph.has_edge(current_valve.id, valve.id):
-                    graph.add_edge(current_valve.id, valve.id)
-                continue
-
-            if valve.flow_rate > 0:
-                weight += (valve.flow_rate / distance)
-            graph.add_node(valve.id, distance_from_start=distance, weighted_value=weight)
-            graph.add_edge(current_valve.id, valve.id)
-            self.__add_node(valve, graph, distance, weight)
+    def __update_valve_distance_and_weight(self, graph: Graph, current_valve: Valve):
+        distance = maxsize
+        weight = 0
+        for path in all_simple_paths(graph, self.starting_valve_id, current_valve.id):
+            path_len = len(path)
+            if path_len < distance:
+                distance = path_len
+        if distance == maxsize:
+            distance = 1
+        if current_valve.flow_rate > 0:
+            weight = (current_valve.flow_rate / distance)
+        graph.nodes[current_valve.id]['distance_from_start'] = distance - 1
+        graph.nodes[current_valve.id]['weighted_value'] = weight
