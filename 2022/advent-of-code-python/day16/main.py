@@ -26,6 +26,13 @@ def part_i():
 
     you.generate_tunnel_layout()
     you.print_simple_paths()
-    you.print_simple_paths(True)
+    you.print_all_paths()
 
-    print(f'Pressure released: {you.pressure_released}')
+    you.generate_paths()
+
+    for path in you.paths:
+        path.update_path_value()
+
+    best_path = max(you.paths, key=lambda p: p.path_value)
+
+    print(f'Pressure released: {best_path.path_value}')
