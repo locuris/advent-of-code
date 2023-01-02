@@ -1,18 +1,22 @@
 import copy
+import matplotlib.pyplot as plt
 from enum import Enum
-
-from anytree import AnyNode, RenderTree
+from networkx import Graph, draw, all_simple_paths
 
 valve_id_prefix = 6
 valve_id_length = 2
 flow_rate_prefix = 23
 other_valves_prefix = 24
+int_id = 1
 
 
 class Valve:
     def __init__(self, input_string: str):
         valve_input_components = input_string.split(';')
         self.id: str = valve_input_components[0][valve_id_prefix:valve_id_length + valve_id_prefix]
+        global int_id
+        self.int_id: int = int_id
+        int_id += 1
         self.flow_rate: int = int(valve_input_components[0][flow_rate_prefix:])
         jvs = valve_input_components[1][other_valves_prefix:].replace(' ', '')
         self.joining_valves_strings: list[str] = jvs.split(',')
@@ -89,7 +93,7 @@ class You:
         self.current_valve: Valve = self.valves[starting_valve]
         self.minutes_left: int = minutes_left
         self.pressure_released: int = 0
-        self.tunnel_layout: AnyNode | None = None
+        self.tunnel_layout: Graph | None = None
         self.paths: set[Path] = set()
         self.valuable_valves: set[str] = set()
         for k, v in self.valves.items():
@@ -109,54 +113,43 @@ class You:
         self.minutes_left -= 1
 
     def generate_tunnel_layout(self):
-        paths = AnyNode(id=self.current_valve.id)
-        # noinspection PyTypeChecker
-        self.__add_node(self.current_valve, paths, self.minutes_left, 0)
-        print(RenderTree(paths))
-        self.tunnel_layout = paths
+        graph = Graph()
+        graph.add_node(self.current_valve.id, distance_from_start=0, weighted_value=0)
+        self.__add_node(self.current_valve, graph)
+        self.tunnel_layout = graph
+        draw(graph, with_labels=True)
+        plt.show()
 
-    def __add_node(self, current_valve: Valve, current_node: AnyNode, minutes_left: int, previous_node_value: int,
-                   weight: int = 1, previous_summed_weighted_value: int = 0):
-
-        # for valve in current_valve.joining_valves:
-        #     if valve.id == current_node.id or valve.id in [n.id for n in current_node.ancestors]:
-        #         continue
-        #     current_minutes = minutes_left - 1
-        #     node_value = previous_node_value
-        #     current_weight = weight
-        #     weighted_value = 0
-        #     if valve.flow_rate > 0:
-        #         current_minutes -= 1
-        #         node_value += current_minutes * valve.flow_rate
-        #         weighted_value = node_value / current_weight
-        #     summed_weighted_value = previous_summed_weighted_value + weighted_value
-        #     node = AnyNode(id=valve.id, flow_rate=valve.flow_rate, optimal_value=node_value, wieght=current_weight,
-        #                    weighted_value=weighted_value, summed_weighted_value=summed_weighted_value, parent=current_node)
-        #     current_weight += 1
-        #     # noinspection PyTypeChecker
-        #     self.__add_node(valve, node, current_minutes, node_value, current_weight, summed_weighted_value)
+    def print_simple_paths(self):
+        end_valves = set()
+        for valve_id in self.valves.keys():
+            if self.tunnel_layout.degree[valve_id] == 1:
+                end_valves.add(valve_id)
+        paths = [{}]
+        for path in all_simple_paths(self.tunnel_layout, self.current_valve.id, end_valves):
+            new_path = {}
+            print(path)
+            for n in path:
+                new_path[n] = self.valves[n].flow_rate
+            paths.append(new_path)
 
     def generate_paths(self):
-        start = self.tunnel_layout.root
-        path = Path(self.minutes_left, self.valuable_valves)
-        self.__generate_path(start, path)
 
-    def __generate_path(self, current_node: AnyNode, path: Path):
-        next_valve = None
-        highest_value = 0
-        for next in current_node.children:
-            if path.open_valves[next.id]:
+
+
+    def __add_node(self, current_valve: Valve, graph: Graph, distance_from_start: int = 0, weighted_value: int = 0):
+        for valve in current_valve.joining_valves:
+            distance = distance_from_start + 1
+            weight = weighted_value
+            if graph.has_node(valve.id):
+                if graph.nodes[valve.id]['distance_from_start'] > distance:
+                    graph.nodes[valve.id]['distance_from_start'] = distance
+                if not graph.has_edge(current_valve.id, valve.id):
+                    graph.add_edge(current_valve.id, valve.id)
                 continue
-            if next.summed_weighted_value > highest_value:
-                next_valve = next
-                highest_value = next.summed_weighted_value
 
-        if next_valve is None:
-            path.move()
-
-
-    # def generate_path(self, current_valve: Valve, previous_path: None | Path = None):
-    #     for valve in current_valve.joining_valves:
-    #         path = Path(self.minutes_left, self.valuable_valves) if previous_path is None else copy.copy(previous_path)
-    #         #if valve
-
+            if valve.flow_rate > 0:
+                weight += (valve.flow_rate / distance)
+            graph.add_node(valve.id, distance_from_start=distance, weighted_value=weight)
+            graph.add_edge(current_valve.id, valve.id)
+            self.__add_node(valve, graph, distance, weight)
