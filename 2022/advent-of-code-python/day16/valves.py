@@ -26,8 +26,9 @@ class Valve:
         jvs = valve_input_components[1][other_valves_prefix:].replace(' ', '')
         self.joining_valves_strings: list[str] = jvs.split(',')
         self.joining_valves: set[Valve] = set()
-        self.open = False
-        self.degree = 0
+        self.open: bool = False
+        self.degree: int = 0
+        self.optimal_value: int = 0
 
     def __str__(self):
         return self.id
@@ -38,10 +39,19 @@ class Valve:
     def __hash__(self):
         return hash(self.id)
 
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __contains__(self, item):
+        return self.id == item.id
+
     def set_joining_valves(self, valves: set):
         for valve in valves:
             if valve.id in self.joining_valves_strings:
                 self.joining_valves.add(valve)
+
+    def potential_release(self, time_left: int) -> int:
+        return self.flow_rate * time_left
 
 
 class ActionType(Enum):
@@ -93,7 +103,7 @@ class Path:
 
     def move(self, valve: Valve) -> bool:
         if valve.id in self.visited_valves.keys():
-            if self.visited_valves[valve.id] > valve.degree:
+            if self.visited_valves[valve.id] >= valve.degree:
                 return False
             else:
                 self.visited_valves[valve.id] += 1
@@ -153,6 +163,54 @@ class Path:
         return potential_pressure <= highest_path_value
 
 
+class SimplePath:
+    def __init__(self, input_string: str):
+        self.path_string = input_string
+        path_components = input_string.split(',')
+        self.steps: [tuple[str, float]] = []
+        self.total: int = 0
+        for component in path_components:
+            sub_components = component.split('|')
+            key = sub_components[0]
+            value = sub_components[1]
+            if not key == 'total':
+                self.steps.append((key, float(value)))
+            else:
+                self.total = float(value)
+
+    def __repr__(self):
+        return self.path_string
+
+    def __str__(self):
+        lines = []
+        for step in self.steps:
+            lines.append(f'[{step[0]}:{step[1]}]')
+        lines.append(f'total: {self.total}')
+        return ', '.join(lines)
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def contains_valve(self, valve: Valve):
+        for step in self.steps:
+            if step[0] == valve.id:
+                return True
+        return False
+
+    def valve_value(self, valve: Valve):
+        for step in self.steps:
+            if step[0] == valve.id:
+                return step[1]
+
+    # def generate_alternative_paths(self):
+    #     new_paths = []
+    #     for step in self.steps:
+    #         `
+
+
 class You:
     def __init__(self, valves: dict[str, Valve], starting_valve: str, minutes_left: int):
         self.valves: dict[str, Valve] = valves
@@ -162,6 +220,7 @@ class You:
         self.pressure_released: int = 0
         self.tunnel_layout: graph_to_use | None = None
         self.paths: set[Path] = set()
+        self.simple_paths: set[SimplePath] = set()
         self.valuable_valves: set[str] = set()
         self.sub_paths: set[set[str]] = set()
         for k, v in self.valves.items():
@@ -185,6 +244,10 @@ class You:
         graph.add_node(self.current_valve, distance_from_start=0, weighted_value=0)
         self.__add_node(self.current_valve, graph)
         self.tunnel_layout = graph
+        #self.__update_valve_distance_and_weight()
+        self.__update_valve_weight()
+        self.__generate_simple_paths()
+        self.__print_simple_paths()
         draw(graph, with_labels=True)
         plt.show()
         for _, v in self.valves.items():
@@ -215,21 +278,87 @@ class You:
             if not valve_id == self.starting_valve_id:
                 all_valves.add(valve)
         for path in all_simple_paths(self.tunnel_layout, self.current_valve, all_valves):
-            print(path)
+            path_string = ''
+            path_value = 0
+            last_path = path[len(path) - 1]
+            for valve in path:
+                current_node = self.tunnel_layout.nodes[valve]
+                try:
+                    weight = current_node[f'weight-{last_path.id}']
+                    path_value += weight
+                    path_string += f'[{valve.id}|{weight}], '
+                except KeyError:
+                    path_string += '[AA], '
+            print(f'{path_string}[total:{path_value}]')
 
-    def __update_valve_distance_and_weight(self, graph: graph_to_use, current_valve: Valve):
-        distance = maxsize
-        weight = 0
-        for path in all_simple_paths(graph, self.starting_valve_id, current_valve.id):
-            path_len = len(path)
-            if path_len < distance:
-                distance = path_len
-        if distance == maxsize:
-            distance = 1
-        if current_valve.flow_rate > 0:
-            weight = (current_valve.flow_rate / distance)
-        graph.nodes[current_valve.id]['distance_from_start'] = distance - 1
-        graph.nodes[current_valve.id]['weighted_value'] = weight
+    def __generate_simple_paths(self):
+        all_valves = set()
+        for valve_id, valve in self.valves.items():
+            if not valve_id == self.starting_valve_id:
+                all_valves.add(valve)
+        for path in all_simple_paths(self.tunnel_layout, self.current_valve, all_valves):
+            path_string = ''
+            path_value = 0
+            last_path = path[len(path) - 1]
+            for valve in path:
+                current_node = self.tunnel_layout.nodes[valve]
+                try:
+                    weight = current_node[f'weight-{last_path.id}']
+                    path_value += weight
+                    path_string += f'{valve.id}|{weight},'
+                except KeyError:
+                    pass
+            path_string += f'total|{path_value}'
+            self.simple_paths.add(SimplePath(path_string))
+        for _, valve in self.valves.items():
+            for path in self.simple_paths:
+                if path.contains_valve(valve):
+                    valve_value = path.valve_value(valve)
+                    if valve.optimal_value < valve_value:
+                        valve.optimal_value = valve_value
+
+    def __print_simple_paths(self):
+        for simple_path in self.simple_paths:
+            print(simple_path)
+
+    def __update_valve_distance_and_weight(self):
+        starting_valve = self.valves[self.starting_valve_id]
+        for _, current_valve in self.valves.items():
+            if current_valve == starting_valve:
+                continue
+            for path in all_simple_paths(self.tunnel_layout, starting_valve, current_valve):
+                for idx, valve in enumerate(path):
+                    if valve == starting_valve:
+                        continue
+                    weight = (29 - idx) * valve.flow_rate if not valve.flow_rate == 0 else 0
+                    self.tunnel_layout.nodes[valve][f'weight-{current_valve.id}'] = weight
+
+    def __update_valve_weight(self):
+        paths_from_start = []
+        for _, non_start_valve in self.valves.items():
+            if non_start_valve == self.current_valve:
+                continue
+            simple_paths_from_start = all_simple_paths(self.tunnel_layout, self.current_valve, non_start_valve)
+            for simple_path_from_start in simple_paths_from_start:
+                print(simple_path_from_start)
+                paths_from_start.append(simple_path_from_start)
+        for _, start_valve in self.valves.items():
+            for _, end_valve in self.valves.items():
+                if start_valve == end_valve:
+                    continue
+                for path in all_simple_paths(self.tunnel_layout, start_valve, end_valve):
+                    for idx, valve in enumerate(path):
+                        if valve.flow_rate == 0:
+                            self.tunnel_layout.nodes[valve][weight_node_key(start_valve, end_valve, False)] = 0
+                            self.tunnel_layout.nodes[valve][weight_node_key(start_valve, end_valve, True)] = 0
+                            continue
+                        paths_with_valve = [p for p in paths_from_start if valve in p and valve == p[-1]]
+                        longest_length = len(max(paths_with_valve, key=len))
+                        shortest_length = len(min(paths_with_valve, key=len))
+                        self.tunnel_layout.nodes[valve][weight_node_key(start_valve, end_valve, False)] =\
+                            (longest_length - 1) * valve.flow_rate
+                        self.tunnel_layout.nodes[valve][weight_node_key(start_valve, end_valve, True)] =\
+                            (shortest_length - 1) * valve.flow_rate
 
     def generate_paths(self):
         paths: set[Path] = set()
@@ -275,3 +404,16 @@ class You:
             highest_path_value = path.path_value
             self.paths.add(path)
             print(f'Path added {len(self.paths)}')
+
+    # def best_path(self):
+    #     next_valve = self.current_valve
+    #     for valve in self.current_valve.joining_valves:
+    #         if valve.flow_rate != 0 and not valve.open:
+    #             best_valve = valve
+    #             for v in valve.joining_valves:
+    #                 if v.potential_release(self.minutes_left - 2) > best_valve.p
+
+
+def weight_node_key(start_valve: Valve, end_valve: Valve, shortest: bool):
+    weight_type = 'short' if shortest else 'long'
+    return f'weight-{weight_type}-{start_valve.id}-{end_valve.id}'

@@ -25,14 +25,13 @@ def part_i():
     you = You(valves, starting_valve, minutes_left)
 
     you.generate_tunnel_layout()
-    you.print_simple_paths()
-    you.print_all_paths()
+    #you.print_all_paths()
 
-    you.generate_paths()
+    #you.generate_paths()
 
-    for path in you.paths:
-        path.update_path_value()
+    # for path in you.paths:
+    #     path.update_path_value()
 
-    best_path = max(you.paths, key=lambda p: p.path_value)
+    #best_path = max(you.paths, key=lambda p: p.path_value)
 
     print(f'Pressure released: {best_path.path_value}')
