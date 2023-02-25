@@ -2,6 +2,7 @@ import copy
 from enum import Enum
 
 from anytree import AnyNode, RenderTree
+import networkx as nx
 
 valve_id_prefix = 6
 valve_id_length = 2
@@ -95,6 +96,7 @@ class You:
         for k, v in self.valves.items():
             if v.flow_rate > 0:
                 self.valuable_valves.add(k)
+        self.tunnel_graph: nx.Graph | None = None
 
     def move(self, target_valve: str):
         self.current_valve = self.valves[target_valve]
@@ -109,32 +111,39 @@ class You:
         self.minutes_left -= 1
 
     def generate_tunnel_layout(self):
-        paths = AnyNode(id=self.current_valve.id)
-        # noinspection PyTypeChecker
-        self.__add_node(self.current_valve, paths, self.minutes_left, 0)
-        print(RenderTree(paths))
-        self.tunnel_layout = paths
+        graph = nx.Graph()
+        for id, valve in self.valves.items():
+            node = graph.add_node(id)
+
+        for id, valve in self.valves.items()
+            for j_valve in valve.joining_valves:
+                nx.add_path(graph, )
+        # paths = AnyNode(id=self.current_valve.id)
+        # # noinspection PyTypeChecker
+        # self.__add_node(self.current_valve, paths, self.minutes_left, 0)
+        # print(RenderTree(paths))
+        # self.tunnel_layout = paths
 
     def __add_node(self, current_valve: Valve, current_node: AnyNode, minutes_left: int, previous_node_value: int,
                    weight: int = 1, previous_summed_weighted_value: int = 0):
 
-        # for valve in current_valve.joining_valves:
-        #     if valve.id == current_node.id or valve.id in [n.id for n in current_node.ancestors]:
-        #         continue
-        #     current_minutes = minutes_left - 1
-        #     node_value = previous_node_value
-        #     current_weight = weight
-        #     weighted_value = 0
-        #     if valve.flow_rate > 0:
-        #         current_minutes -= 1
-        #         node_value += current_minutes * valve.flow_rate
-        #         weighted_value = node_value / current_weight
-        #     summed_weighted_value = previous_summed_weighted_value + weighted_value
-        #     node = AnyNode(id=valve.id, flow_rate=valve.flow_rate, optimal_value=node_value, wieght=current_weight,
-        #                    weighted_value=weighted_value, summed_weighted_value=summed_weighted_value, parent=current_node)
-        #     current_weight += 1
-        #     # noinspection PyTypeChecker
-        #     self.__add_node(valve, node, current_minutes, node_value, current_weight, summed_weighted_value)
+        for valve in current_valve.joining_valves:
+            if valve.id == current_node.id or valve.id in [n.id for n in current_node.ancestors]:
+                continue
+            current_minutes = minutes_left - 1
+            node_value = previous_node_value
+            current_weight = weight
+            weighted_value = 0
+            if valve.flow_rate > 0:
+                current_minutes -= 1
+                node_value += current_minutes * valve.flow_rate
+                weighted_value = node_value / current_weight
+            summed_weighted_value = previous_summed_weighted_value + weighted_value
+            node = AnyNode(id=valve.id, flow_rate=valve.flow_rate, optimal_value=node_value, wieght=current_weight,
+                           weighted_value=weighted_value, summed_weighted_value=summed_weighted_value, parent=current_node)
+            current_weight += 1
+            # noinspection PyTypeChecker
+            self.__add_node(valve, node, current_minutes, node_value, current_weight, summed_weighted_value)
 
     def generate_paths(self):
         start = self.tunnel_layout.root
