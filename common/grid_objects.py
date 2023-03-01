@@ -18,6 +18,10 @@ class Point:
     def __hash__(self):
         return hash('x'+str(self.x)+'y'+str(self.y))
 
+    def __add__(self, other):
+        self.x += other.x
+        self.y += other.y
+
     def move(self, direction):
         match direction:
             case Direction.Up:
@@ -72,6 +76,12 @@ class Point:
 
     def as_pos_array(self) -> list:
         return [self.x, self.y]
+
+    def move_x(self, amount: int):
+        self.x += amount
+
+    def move_y(self, amount: int):
+        self.y += amount
 
 
 class Direction(Enum):

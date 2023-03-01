@@ -1,8 +1,8 @@
-from common.data import lines
+from common.data import as_lines
 
 
 def determine_depth_increase(group_size: int = 1):
-    sonar_readings = lines()
+    sonar_readings = as_lines()
     sonar_readings = [int(sr) for sr in sonar_readings]
     times_depth_increased = 0
     sonar_readings_count = len(sonar_readings)
