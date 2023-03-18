@@ -9,7 +9,8 @@ def __filename(test: bool) -> str:
 
 
 def as_lines(test: bool = False) -> List[str]:
-    return open(__filename(test)).readlines()
+    lines = open(__filename(test)).readlines()
+    return [line.replace('\n', '') for line in lines]
 
 
 def as_tuples(item_1_type: T, item_2_type: V, separator: str, test: bool = False) -> [(T, V)]:
