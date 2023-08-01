@@ -2,7 +2,7 @@ module day3
 
 type Point = { x: int; y: int }
 
-// This is an AI assisted conversion of my original Python code
+// This is an AI assisted conversion of my original Python code - because I cba
 
 let mutable width = 0
 let mutable height = 0
