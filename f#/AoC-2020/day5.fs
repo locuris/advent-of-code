@@ -1,9 +1,10 @@
 module day5
 
 open System
+open System.Collections.Generic
 
-let seatIds (lines: string array): ResizeArray<int> =
-    let seatIds = ResizeArray<int>()
+let getSeatIds (lines: string array): Dictionary<int, int * int> =
+    let seatIds: Dictionary<int, int * int> = Dictionary()
     
     for line in lines do
         let row = line.Substring(0, 7)
@@ -15,9 +16,28 @@ let seatIds (lines: string array): ResizeArray<int> =
         let rowNumber = Convert.ToInt32(rowBinary, 2)
         let seatNumber = Convert.ToInt32(seatBinary, 2)
         
-        seatIds.Add(rowNumber * 8 + seatNumber)
+        seatIds.Add(rowNumber * 8 + seatNumber, (rowNumber, seatNumber))
         
     seatIds
 
 let day5part1 (lines: string array) =
-    seatIds lines |> Seq.max |> string
+    getSeatIds(lines).Keys |> Seq.max |> string
+    
+let day5part2 (lines: string array) =
+    let seatIdMap = getSeatIds lines
+    let seatIds = seatIdMap.Keys |> Seq.toList |> Seq.sortDescending |> Seq.rev
+    
+    let mutable lastSeatId = 0
+    let mutable mySeatId = 0
+    let mutable found = false
+    for seatId in seatIds do
+        if lastSeatId = 0 then
+            lastSeatId <- seatId
+        elif seatId - lastSeatId > 1 && not found then
+            mySeatId <- seatId - 1
+            found <- true
+        else
+            lastSeatId <- seatId
+            
+    mySeatId |> string
+    
