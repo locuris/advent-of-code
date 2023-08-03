@@ -12,7 +12,7 @@ let main (day: int, part: int, test: bool) =
         (1, [day1Part1; day1Part2])
         (2, [day2part1; day2part2])
         (3, [day3part1; day3part2])
-        (4, [day4part1])
+        (4, [day4part1; day4part2])
     ]
 
     let dayFunction = days[day][partIndex]
@@ -28,4 +28,4 @@ let main (day: int, part: int, test: bool) =
     0
 
 [<EntryPoint>]
-let programArgs argv = main (4, 1, false)
+let programArgs argv = main (4, 2, false)
