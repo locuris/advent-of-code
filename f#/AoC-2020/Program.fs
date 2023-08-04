@@ -1,9 +1,10 @@
-﻿open utilities
+﻿open System.IO
 open day1
 open day2
 open day3
 open day4
 open day5
+open day6
 
 let main (day: int, part: int, test: bool) =
 
@@ -15,6 +16,7 @@ let main (day: int, part: int, test: bool) =
         (3, [day3part1; day3part2])
         (4, [day4part1; day4part2])
         (5, [day5part1; day5part2])
+        (6, [day6part1])
     ]
 
     let dayFunction = days[day][partIndex]
@@ -22,7 +24,7 @@ let main (day: int, part: int, test: bool) =
     let file = if test then "test" else "input"
 
     let lines =
-        readFile $"/Users/louis/GitHub/personal/advent-of-code/f#/Input/day{day}/{file}.txt"
+        File.ReadLines($"/Users/louis/GitHub/personal/advent-of-code/f#/Input/day{day}/{file}.txt") |> Array.ofSeq
 
     let answer = dayFunction lines
     printfn $"The answer is: {answer}"
@@ -30,4 +32,4 @@ let main (day: int, part: int, test: bool) =
     0
 
 [<EntryPoint>]
-let programArgs argv = main (5, 2, false)
+let programArgs argv = main (6, 1, false)
