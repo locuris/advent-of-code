@@ -8,8 +8,8 @@ let rec containsGold (bag: Bag) =
     if bag.color = "shiny gold" then true
     else
         bag.contains |> Map.exists (fun b _ -> containsGold b)
-
-let day7part1 (lines: string array) =
+        
+let getBags (lines: string array): Map<string, Bag> =
     let linesAsString = String.concat " " lines
     let bags =
        Regex.Matches(linesAsString, "\\b\w+\s\w+\s(bag)")
@@ -29,6 +29,11 @@ let day7part1 (lines: string array) =
                       |> Map.ofSeq
         bag.contains <- subBags
         
+    bags
+
+let day7part1 (lines: string array) =
+    let bags = getBags lines
+        
     let mutable answer = 0
     for KeyValue(id, bag) in bags do
         if id = "shiny gold" then ()
@@ -36,4 +41,15 @@ let day7part1 (lines: string array) =
             answer <- answer + 1
        
     answer.ToString()
+    
+let rec countBags (bag: Bag) =
+    let mutable answer = 0
+    for KeyValue(b, count) in bag.contains do
+        answer <- answer + count + count * countBags b
+    answer
+    
+let day7part2 (lines: string array): string =
+    let bags = getBags lines
+    countBags bags["shiny gold"] |> string
+    
             
