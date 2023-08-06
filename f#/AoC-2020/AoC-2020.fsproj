@@ -3,7 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <RootNamespace>AdventOfCode_2020</RootNamespace>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +16,7 @@
         <Compile Include="day6.fs" />
         <Compile Include="day7.fs" />
         <Compile Include="day8.fs" />
+        <Compile Include="day9.fs" />
         <Compile Include="day17.fs" />
         <Compile Include="day17InFourDimensions.fs" />
         <Compile Include="Program.fs" />

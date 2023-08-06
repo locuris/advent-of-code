@@ -1,4 +1,4 @@
-module day9InFourDimensions
+module day17InFourDimensions
 
 let initialState (lines: string array) : bool array4d =
     let size = lines.Length

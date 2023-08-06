@@ -1,4 +1,4 @@
-module day9
+module day17
 
 let initialState (lines: string array) : bool array3d =
     let size = lines.Length

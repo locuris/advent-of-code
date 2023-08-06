@@ -7,8 +7,9 @@ open day5
 open day6
 open day7
 open day8
+open day17
+open day17InFourDimensions
 open day9
-open day9InFourDimensions
 
 let main (day: int, part: int, test: bool) =
 
@@ -23,7 +24,7 @@ let main (day: int, part: int, test: bool) =
         (6, [day6part1; day6part2])
         (7, [day7part1; day7part2])
         (8, [day8part1; day8part2])
-        (9, [])
+        (9, [day9part1; day9part2])
         (10, [])
         (11, [])
         (12, [])
