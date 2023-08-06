@@ -67,7 +67,7 @@ let executeCycles (cube: bool array3d) (cycles: int) : bool array3d =
 
     cube
     
-let day9part1 (lines: string array) : string =
+let day17part1 (lines: string array) : string =
     let mutable cube = initialState lines
     cube <- executeCycles cube 6
     let mutable activeCubes = 0

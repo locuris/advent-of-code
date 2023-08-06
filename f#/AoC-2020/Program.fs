@@ -8,6 +8,7 @@ open day6
 open day7
 open day8
 open day9
+open day9InFourDimensions
 
 let main (day: int, part: int, test: bool) =
 
@@ -22,7 +23,15 @@ let main (day: int, part: int, test: bool) =
         (6, [day6part1; day6part2])
         (7, [day7part1; day7part2])
         (8, [day8part1; day8part2])
-        (9, [day9part1])
+        (9, [])
+        (10, [])
+        (11, [])
+        (12, [])
+        (13, [])
+        (14, [])
+        (15, [])
+        (16, [])
+        (17, [day17part1; day17part2])
     ]
 
     let dayFunction = days[day][partIndex]
@@ -38,4 +47,4 @@ let main (day: int, part: int, test: bool) =
     0
 
 [<EntryPoint>]
-let programArgs argv = main (9, 1, false)
+let programArgs argv = main (9, 2, false)
