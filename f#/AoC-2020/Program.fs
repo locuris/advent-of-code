@@ -10,8 +10,9 @@ open day8
 open day17
 open day17InFourDimensions
 open day9
-
-let main (day: int, part: int, test: bool) =
+open day10
+    
+let main (day: int, part: int, test: bool, inputFilepath: string) =
 
     let partIndex = part - 1
     
@@ -25,7 +26,7 @@ let main (day: int, part: int, test: bool) =
         (7, [day7part1; day7part2])
         (8, [day8part1; day8part2])
         (9, [day9part1; day9part2])
-        (10, [])
+        (10, [day10part1; day10part2])
         (11, [])
         (12, [])
         (13, [])
@@ -40,7 +41,7 @@ let main (day: int, part: int, test: bool) =
     let file = if test then "test" else "input"
 
     let lines =
-        File.ReadLines($"/Users/louis/GitHub/personal/advent-of-code/f#/Input/day{day}/{file}.txt") |> Array.ofSeq
+        File.ReadLines($"{inputFilepath}Input/day{day}/{file}.txt") |> Array.ofSeq
 
     let answer = dayFunction lines
     printfn $"The answer is: {answer}"
@@ -48,4 +49,4 @@ let main (day: int, part: int, test: bool) =
     0
 
 [<EntryPoint>]
-let programArgs argv = main (9, 2, false)
+let programArgs argv = main (int argv.[0], int argv.[1], argv.[2] = "test", argv.[3])
