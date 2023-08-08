@@ -1,4 +1,5 @@
-﻿open System.IO
+﻿open System
+open System.IO
 open day1
 open day2
 open day3
@@ -47,6 +48,19 @@ let main (day: int, part: int, test: bool, inputFilepath: string) =
     printfn $"The answer is: {answer}"
 
     0
+    
+let mainManual =
+    Console.Write("Enter the day you want to run: ")
+    Console.ReadLine() |> int |> fun day ->
+        Console.Write("Enter the part you want to run: ")
+        Console.ReadLine() |> int |> fun part ->
+            Console.Write("Run test input? (y/n): ")
+            Console.ReadLine() |> fun test ->
+                    main (day, part, test = "y", "/Users/louis/GitHub/personal/advent-of-code/f#/")
 
 [<EntryPoint>]
-let programArgs argv = main (int argv.[0], int argv.[1], argv.[2] = "test", argv.[3])
+let programArgs argv =
+    if argv |> Array.length = 0 then
+        mainManual
+    else
+        main (int argv.[0], int argv.[1], argv.[2] = "test", argv.[3])
