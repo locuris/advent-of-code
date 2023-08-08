@@ -1,5 +1,7 @@
 module day10
 
+open System.Collections.Generic
+
 let getJolts (lines: string array): int array =
     lines |> Array.map int |> Array.append [|0|] |> Array.sort
 
@@ -14,7 +16,19 @@ let day10part1 (lines: string array): string =
     ones * threes |> string
     
 let day10part2 (lines: string array): string =
-    let jolts = getJolts lines |> Array.toList
+    let mutable jolts = getJolts lines |> Array.toList
+    let maxJolt = (jolts |> List.max) + 3
+    jolts <- jolts |> List.append [maxJolt] |> List.sort
     
+    let paths = Dictionary<int, int64>()
+    paths.[0] <- 1L
     
-    "Hello"
+    for jolt in jolts do
+        for diff in 1..3 do
+            if paths.ContainsKey(jolt - diff) then
+                if paths.ContainsKey(jolt) then
+                    paths.[jolt] <- paths.[jolt] + paths.[jolt - diff]
+                else
+                    paths.Add(jolt, paths.[jolt - diff])
+    
+    paths.[maxJolt] |> string
