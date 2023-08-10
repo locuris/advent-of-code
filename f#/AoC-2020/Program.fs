@@ -13,6 +13,8 @@ open day17InFourDimensions
 open day9
 open day10
 open day11
+open day12   
+   
     
 let main (day: int, part: int, test: bool, inputFilepath: string) =
 
@@ -30,7 +32,7 @@ let main (day: int, part: int, test: bool, inputFilepath: string) =
         (9, [day9part1; day9part2])
         (10, [day10part1; day10part2])
         (11, [day11part1; day11part2])
-        (12, [])
+        (12, [day12part1])
         (13, [])
         (14, [])
         (15, [])
