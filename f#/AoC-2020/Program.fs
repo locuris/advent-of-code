@@ -15,6 +15,7 @@ open day10
 open day11
 open day12   
 open day13
+open day14
     
 let main (day: int, part: int, test: bool, inputFilepath: string) =
 
@@ -34,7 +35,7 @@ let main (day: int, part: int, test: bool, inputFilepath: string) =
         (11, [day11part1; day11part2])
         (12, [day12part1; day12part2])
         (13, [day13part1; day13part2])
-        (14, [])
+        (14, [day14part1; day14part2])
         (15, [])
         (16, [])
         (17, [day17part1; day17part2])

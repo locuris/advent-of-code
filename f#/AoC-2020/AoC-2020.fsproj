@@ -21,6 +21,7 @@
         <Compile Include="day11.fs" />
         <Compile Include="day12.fs" />
         <Compile Include="Day13.fs" />
+        <Compile Include="day14.fs" />
         <Compile Include="day17.fs" />
         <Compile Include="day17InFourDimensions.fs" />
         <Compile Include="Program.fs" />
