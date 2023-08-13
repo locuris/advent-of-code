@@ -1,38 +1,46 @@
 module day13
 
-let prepareNotes (lines: string array) : int * int array =
+let prepareNotes (lines: string array) (includeX: bool): int * int array =
     let earliest = int lines.[0]
-    let buses = lines.[1].Split(',') |> Array.filter (fun x -> x <> "x") |> Array.map int
+    let buses =
+        if includeX then
+            lines.[1].Split(',') |> Array.map (fun x -> if x = "x" then 1 else int x)
+        else
+            lines.[1].Split(',') |> Array.filter (fun x -> x <> "x") |> Array.map int
     (earliest, buses)
 
 let day13part1 (lines: string array) : string =
-    let earliest, buses = prepareNotes lines
+    let earliest, buses = prepareNotes lines false
     let bus, wait = buses |> Array.map (fun bt -> (bt, bt - (earliest % bt))) |> Array.minBy snd
     bus * wait |> string
     
+// Extended Euclidean Algorithm
+let rec extendedGCD a b =
+    if a = 0L then (b, 0L, 1L)
+    else
+        let (g, x, y) = extendedGCD (b % a) a
+        (g, y - (b / a) * x, x)
+
+// Function to find mod inverse of 'a' under modulo 'm'
+let modInverse a m =
+    let (_, x, _) = extendedGCD a m
+    (x % m + m) % m
+
+// Function to solve the Chinese Remainder Theorem problem
+let chineseRemainder (num: int64 list) (rem: int64 list) =
+    let prod = List.reduce (*) num
+    let result =
+        List.fold2 (fun acc a m ->
+            let pp = prod / m
+            acc + a * modInverse pp m * pp
+        ) 0L rem num
+
+    result % prod
+    
 let day13part2 (lines: string array) : string =
-    let _, busses = prepareNotes lines
+    let _, buses = prepareNotes lines true
     
-    let busMap = busses |> Array.mapi (fun i bt -> (bt, i)) |> Array.filter (fun (bt, _) -> bt <> 1) |> Map.ofArray
-    let busesSorted = busses |> Array.sortDescending
+    let num = buses |> Array.map int64
+    let rem = buses |> Array.map int64 |> Array.mapi (fun i x -> x - int64 i)
     
-    let mutable found = false
-    let mutable t = 0
-    while not found do
-        t <- t + 1
-        let longestBus = busesSorted.[0]
-        let longestBusTime = longestBus * t
-        let longestBusIndex = busMap.[longestBus]
-        found <- true
-        
-        for i = 1 to busesSorted.Length - 1 do
-            let bus = busesSorted.[i]
-            let busIndex = busMap.[bus]
-            let diff = longestBusIndex + busIndex
-            let busTime = longestBusTime - diff
-            if found && busTime % bus <> 0 then
-                found <- false
-                t <- t + 1
-            
-    busses.[0] * t |> string
-            
+    chineseRemainder (List.ofArray num) (List.ofArray rem) |> string
