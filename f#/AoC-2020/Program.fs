@@ -46,7 +46,7 @@ let main (day: int, part: int, test: bool, inputFilepath: string) =
     let file = if test then "test" else "input"
 
     let lines =
-        File.ReadLines($"{inputFilepath}Input/day{day}/{file}.txt") |> Array.ofSeq
+        File.ReadLines($"{inputFilepath}Input/2020/day{day}/{file}.txt") |> Array.ofSeq
 
     let answer = dayFunction lines
     printfn $"The answer is: {answer}"
