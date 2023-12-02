@@ -2,6 +2,7 @@
 
 open System.IO
 open day1
+open day2
 
 printfn "Hello from F#"
 
@@ -11,6 +12,7 @@ let runForDay (day: int, part: int, test: bool, inputFilePath: string) =
     
     let days = Map [
         (1, [day1part1; day1part2])
+        (2, [day2part1; day2part2])
     ]
     
     let dayFunction = days[day][partIndex]
