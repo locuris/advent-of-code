@@ -4,6 +4,7 @@ open System.IO
 open day1
 open day2
 open day3
+open day4
 
 printfn "Hello from F#"
 
@@ -15,6 +16,7 @@ let runForDay (day: int, part: int, test: bool, inputFilePath: string) =
         (1, [day1part1; day1part2])
         (2, [day2part1; day2part2])
         (3, [day3part1; day3part2])
+        (4, [day4part1; day4part2])
     ]
     
     let dayFunction = days[day][partIndex]
