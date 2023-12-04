@@ -32,6 +32,4 @@ let day2part1(lines: string array) =
         if game.KnownBlue <= 14 && game.KnownRed <= 12 && game.KnownGreen <= 13 then game.Id else 0) |> string
     
 let day2part2(lines: string array) =
-    lines |> Array.map createGame |> Array.sumBy (fun game ->
-        printf $"Game {game.Id}: [RED: {game.KnownRed}, BLUE: {game.KnownBlue} GREEN: {game.KnownGreen}] Power: {game.GetPower()}\n"
-        game.GetPower()) |> string
+    lines |> Array.map createGame |> Array.sumBy (fun game -> game.GetPower()) |> string
