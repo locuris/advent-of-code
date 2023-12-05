@@ -28,7 +28,7 @@ let getValueForLine (line: string) =
     let last = line.ToCharArray() |> Array.findBack Char.IsDigit |> string
     int (first + last)
 
-let day1part1 (lines: string array) =
+let part1 (lines: string array) =
     let mutable answer = 0
     for line in lines do        
         answer <- answer + getValueForLine line
@@ -54,7 +54,7 @@ let createSubList myList =
         [first; last]
 
 
-let day1part2 (lines: string array) =
+let part2 (lines: string array) =
     let mutable answer = 0
     for line in lines do
         let indices = digits |> Array.map (fun d -> (d, findAllSubstringIndices line d))

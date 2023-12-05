@@ -33,7 +33,7 @@ let isValidGear((xPos: int, yPos: int), grid: char[,], xSize: int, ySize: int, n
     nSet |> Set.iter (fun n -> power <- power * n)
     nSet.Count = 2, power
 
-let day3part1(lines: string array) =    
+let part1(lines: string array) =    
     let xSize, ySize = getSize lines
     let grid = Array2D.init xSize ySize (fun x y -> lines[y].ToCharArray()[x])
     let numberPosMap = lines |> Array.mapi (fun y line ->
@@ -42,7 +42,7 @@ let day3part1(lines: string array) =
         |> Seq.map (fun m -> m.Value, (m.Index, y), (m.Index + m.Length - 1, y)) |> Seq.toArray) |> Array.collect id
     numberPosMap |> Array.sumBy (fun (number, (xStart, y), (xEnd, _)) -> if isValid(xStart, xEnd, y, grid, xSize, ySize) then int(number) else 0) |> string
     
-let day3part2(lines: string array) =    
+let part2(lines: string array) =    
     let xSize, ySize = getSize lines
     let grid = Array2D.init xSize ySize (fun x y -> lines[y].ToCharArray()[x])
     let numberPosMap = lines |> Array.mapi (fun y line ->

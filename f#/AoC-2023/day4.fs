@@ -22,10 +22,10 @@ type ScratchCard =
             if n > 1 then pown 2 (n - 1)  else n
     end
     
-let day4part1(lines: string array) =
+let part1(lines: string array) =
     lines |> Array.map ScratchCard |> Array.sumBy (fun card -> card.Winnings card.WinningNumbers) |> string
     
-let day4part2(lines: string array) =
+let part2(lines: string array) =
     let cards = lines |> Array.map ScratchCard    
     let mutable copies = cards |> Array.map (fun card -> card, 0) |> Map.ofArray 
     cards |> Array.iteri (fun i card ->

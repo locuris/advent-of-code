@@ -27,9 +27,9 @@ let createGame(line: string) =
        turns |> Array.map (fun turn -> turn |> Array.map (fun (c, n) -> if c = "green" then (c, n) else (c, 0)) |> Array.maxBy snd |> snd) |> Array.max
     )
     
-let day2part1(lines: string array) =
+let part1(lines: string array) =
     lines |> Array.map createGame |> Array.sumBy (fun game ->
         if game.KnownBlue <= 14 && game.KnownRed <= 12 && game.KnownGreen <= 13 then game.Id else 0) |> string
     
-let day2part2(lines: string array) =
+let part2(lines: string array) =
     lines |> Array.map createGame |> Array.sumBy (fun game -> game.GetPower()) |> string
