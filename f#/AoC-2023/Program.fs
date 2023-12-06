@@ -12,36 +12,36 @@ open Common.Input
 
 printfn "Hello from F#"
 
-let runForDay (day: int, part: int, test: bool, inputFilePath: string) =
-    
-    let partIndex = part - 1
-    
-    let days = Map [
+let days = Map [
         (1, [day1.part1; day1.part2])
         (2, [day2.part1; day2.part2])
         (3, [day3.part1; day3.part2])
         (4, [day4.part1; day4.part2])
         (5, [day5.part1; day5.part2])
     ]
-    
-    let dayFunction = days[day][partIndex]
-    
+
+let getInputSpec(day: int) (file: string) =
+    File.ReadLines($"C:/Users/louis/Personal/advent-of-code/f#/Input/{2023}/day{day}/{file}.txt") |> Array.ofSeq
+
+let getInput(day: int) (test: bool) =
     let file = if test then "test" else "input"
-    
-    let lines = File.ReadLines($"{inputFilePath}Input/2023/day{day}/{file}.txt") |> Array.ofSeq
-    
-    let stopwatch = Stopwatch.StartNew()
-    let answer = dayFunction lines
+    getInputSpec day file
+
+let getAnswer(day: int) (part: int) (input: string array) =
+    let stopwatch = Stopwatch.StartNew() 
+    let answer = days[day][part - 1](input)
     stopwatch.Stop()
     printfn $"Got the answer, {answer}, in {stopwatch.ElapsedMilliseconds}ms ❤️"
-    0
+    
+    
 
 [<EntryPoint>]
-let main argv =
-    match argv with
-    | [| day; part; test; filePath; |] ->
-        runForDay (int day, int part, test = "test", filePath)
-    | _ ->
-        let day, part, test = mainMenu()
-        runForDay(day, part, test, "C:/Users/louis/Personal/advent-of-code/f#/")
+let main argv =    
+    let test = false
+    let day = 2
+    let file = getInput day test
+    getAnswer day 1 file
+    let f2 = getInput day test
+    getAnswer day 2 f2
+    0
             

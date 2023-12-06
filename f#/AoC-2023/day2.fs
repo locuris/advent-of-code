@@ -1,5 +1,7 @@
 ﻿module day2
 
+open Common.Input
+
 type Game =
     struct
         val Id: int
@@ -9,22 +11,15 @@ type Game =
         new(id: int, knownBlue: int, knownRed: int, knowGreen: int) =
             {Id = id; KnownBlue = knownBlue; KnownRed = knownRed; KnownGreen = knowGreen }
         
-        member this.GetPower() = this.KnownRed * this.KnownBlue * this.KnownGreen
-    end
+        static member GetPower(this: Game) = this.KnownRed * this.KnownBlue * this.KnownGreen
+    end 
     
-let createGame(line: string) =
-    let firstSplit = line.Split(':')
-    let secondSplit = firstSplit[1].Split(';')
-    let turns = secondSplit |> Array.map (fun s ->
-        let goes = s.Split(',')
-        goes |> Array.map (fun g ->
-            let cube = g.Split(' ')
-            (cube[2].Trim(),int (cube[1].Trim()))))
+let createGame(line: string) : Game =    
     Game(       
-       firstSplit |> Array.item 0 |> (fun g -> g.Split(' ')) |> Array.item 1 |> int,
-       turns |> Array.map (fun turn -> turn |> Array.map (fun (c, n) -> if c = "blue" then (c, n) else (c, 0)) |> Array.maxBy snd |> snd) |> Array.max,
-       turns |> Array.map (fun turn -> turn |> Array.map (fun (c, n) -> if c = "red" then (c, n) else (c, 0)) |> Array.maxBy snd |> snd) |> Array.max,
-       turns |> Array.map (fun turn -> turn |> Array.map (fun (c, n) -> if c = "green" then (c, n) else (c, 0)) |> Array.maxBy snd |> snd) |> Array.max
+       line |> getMatchAsString @"\d+" |> int,
+       line |> getGroupsAsStringArray @"(\d+).blue" |> Array.maxBy int |> int,
+       line |> getGroupsAsStringArray @"(\d+).red" |> Array.maxBy int |> int,
+       line |> getGroupsAsStringArray @"(\d+).green" |> Array.maxBy int |> int
     )
     
 let part1(lines: string array) =
@@ -32,4 +27,4 @@ let part1(lines: string array) =
         if game.KnownBlue <= 14 && game.KnownRed <= 12 && game.KnownGreen <= 13 then game.Id else 0) |> string
     
 let part2(lines: string array) =
-    lines |> Array.map createGame |> Array.sumBy (fun game -> game.GetPower()) |> string
+    lines |> Array.map createGame |> Array.sumBy Game.GetPower |> string

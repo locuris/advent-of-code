@@ -23,42 +23,24 @@ let digits = [|
 |]
 
 
-let getValueForLine (line: string) =
-    let first = line.ToCharArray() |> Array.find Char.IsDigit |> string
-    let last = line.ToCharArray() |> Array.findBack Char.IsDigit |> string
+let getValueForLine (line: string) : int =
+    let first = line.ToCharArray()
+                |> Array.find Char.IsDigit |> string
+    let last = line.ToCharArray()
+               |> Array.findBack Char.IsDigit |> string
     int (first + last)
 
-let part1 (lines: string array) =
-    let mutable answer = 0
-    for line in lines do        
-        answer <- answer + getValueForLine line
-    answer |> string
+let part1 (lines: string array) : string =
+    lines
+    |> Array.map getValueForLine
+    |> Array.sum
+    |> string
 
-let findAllSubstringIndices (mainStr: string) (subStr: string) =
-    let rec findFromIndex (startIndex: int) (acc: int list) =
-        let foundIndex = mainStr.IndexOf(subStr, startIndex)
-        if foundIndex <> -1 then
-            findFromIndex (foundIndex + 1) (foundIndex :: acc)
-        else
-            List.rev acc
-
-    findFromIndex 0 []
+let getValueForLineIncludeWords (line: string) : int =
+    let first = digits |> Array.filter line.Contains |> Array.minBy line.IndexOf |> digitMap.TryFind |> Option.get
+    let last = digits |> Array.filter line.Contains |> Array.maxBy line.LastIndexOf |> digitMap.TryFind |> Option.get
+    int (first + last)
 
 
-let createSubList myList =
-    match myList with
-    | [] -> [] 
-    | [x] -> [x] 
-    | first :: rest ->
-        let last = List.last rest
-        [first; last]
-
-
-let part2 (lines: string array) =
-    let mutable answer = 0
-    for line in lines do
-        let indices = digits |> Array.map (fun d -> (d, findAllSubstringIndices line d))
-        let first = indices |> Seq.filter (fun (_, i) -> Seq.isEmpty i |> not) |> Seq.minBy (fun (d, i) -> i |> Seq.min) |> fst |> (fun d -> digitMap.Item d)
-        let last = indices |> Seq.filter (fun (_, i) -> Seq.isEmpty i |> not) |> Seq.maxBy (fun (d, i) -> i |> Seq.max) |> fst |> (fun d -> digitMap.Item d)
-        answer <- answer + (int (first + last))
-    answer |> string
+let part2 (lines: string array) : string =
+    lines |> Array.map getValueForLineIncludeWords |> Array.sum |> string

@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Diagnostics
 open System.Text.RegularExpressions
 
 module GridHelpers =
@@ -31,12 +32,24 @@ module Input =
         finalList.Add(currentList.ToArray())
         finalList |> List.ofSeq
         
-    let getMatches (text: string, pattern: string) : string seq =
+    let getMatches (pattern: string) (text: string) : Match seq =
         Regex.Matches (text, pattern)
         |> Seq.cast<Match>
-        |> Seq.map (fun m -> m.Value)
         
-    let getGroups (text: string, pattern: string) : string seq =
-        let firstMatch = Regex.Matches (text, pattern) |> Seq.cast<Match> |> Seq.item 0
-        firstMatch.Groups.Values |> Seq.map (fun g -> g.Value)
+    let getMatchesAsStringArray (pattern: string) (text: string) : string array =
+        getMatches pattern text
+        |> Seq.map (fun m -> m.Value)
+        |> Array.ofSeq
+        
+    let getGroupsAsStringArray (pattern: string) (text: string) : string array =
+        Regex.Matches (text, pattern)
+        |> Seq.cast<Match>
+        |> Seq.collect (fun m -> m.Groups)
+        |> Seq.filter (fun g -> g.GetType() = typeof<Group>)
+        |> Seq.map (fun g -> g.Value)
+        |> Array.ofSeq
+        
+    let getMatchAsString (pattern: string) (text: string) : string =
+        let match_ = Regex.Match(text, pattern)
+        match_.Value
         
