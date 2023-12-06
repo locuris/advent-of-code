@@ -8,6 +8,7 @@ open day2
 open day3
 open day4
 open day5
+open day6
 open Common.Input
 
 printfn "Hello from F#"
@@ -18,6 +19,7 @@ let days = Map [
         (3, [day3.part1; day3.part2])
         (4, [day4.part1; day4.part2])
         (5, [day5.part1; day5.part2])
+        (6, [day6.part1; day6.part2])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -31,17 +33,16 @@ let getAnswer(day: int) (part: int) (input: string array) =
     let stopwatch = Stopwatch.StartNew() 
     let answer = days[day][part - 1](input)
     stopwatch.Stop()
-    printfn $"Got the answer, {answer}, in {stopwatch.ElapsedMilliseconds}ms ❤️"
+    printfn $"Got the answer, {answer} , in {stopwatch.ElapsedMilliseconds}ms ❤️"
     
     
 
 [<EntryPoint>]
 let main argv =    
     let test = false
-    let day = 2
+    let day = 6
+    let part = 2
     let file = getInput day test
-    getAnswer day 1 file
-    let f2 = getInput day test
-    getAnswer day 2 f2
+    getAnswer day part file
     0
             
