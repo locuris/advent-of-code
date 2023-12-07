@@ -96,14 +96,14 @@ type SeedMap =
             
     end
     
-let getSourceAndDestination(groups: string seq): string * string =
+let getSourceAndDestination(groups: string array): string * string =
     groups |> Seq.head, groups |> Seq.last
     
 let createSeedMaps(groups: string array list) =
     groups |> List.removeAt 0 |> List.map (fun mapLines ->
         let source, destination = mapLines |> Array.item 0 |> getGroupsAsStringArray @"(\w+)-\w+-(\w+)" |> getSourceAndDestination
         let ranges = mapLines |> Array.removeAt 0 |> Array.map (fun line ->
-            let rangeNumbers = getMatchesAsStringArray(line, @"\d+") |> Seq.map Int64.Parse |> Seq.toArray
+            let rangeNumbers = getMatchesAsStringArray @"\d+" line |> Seq.map Int64.Parse |> Seq.toArray
             MapRange(rangeNumbers[0], rangeNumbers[1], rangeNumbers[2]))
         SeedMap(source, destination, ranges)) |> List.toArray
     
@@ -118,7 +118,7 @@ let getSeedRanges(seeds: int64 array) =
     
 let part1(lines: string array) =
     let groups = lines |> getLinesGroupedByNewLine
-    let seeds = groups |> List.item 0 |> Array.item 0 |> fun line -> getMatchesAsStringArray(line, @"\d+") |> Seq.map Int64.Parse |> Seq.toArray
+    let seeds = groups |> List.item 0 |> Array.item 0 |> getMatchesAsStringArray @"\d+" |> Array.map Int64.Parse |> Seq.toArray
     let seedMaps = createSeedMaps groups
     seeds |> Array.map (fun s ->
         let mutable seed = s
@@ -127,7 +127,7 @@ let part1(lines: string array) =
     
 let part2(lines: string array) =
     let groups = lines |> getLinesGroupedByNewLine
-    let seeds = groups |> List.item 0 |> Array.item 0 |> fun line -> getMatchesAsStringArray(line, @"\d+") |> Seq.map Int64.Parse |> Seq.toArray |> getSeedRanges
+    let seeds = groups |> List.item 0 |> Array.item 0 |> getMatchesAsStringArray @"\d+" |> Array.map Int64.Parse |> Seq.toArray |> getSeedRanges
     let seedMaps = createSeedMaps groups
     seedMaps |> Array.fold (fun r sm -> sm.GetDestinations(r)) seeds.Ranges
     |> Array.distinct

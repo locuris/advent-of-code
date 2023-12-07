@@ -2,9 +2,7 @@
 
 open System
 open System.Text.RegularExpressions
-open Common.Input
-open Microsoft.FSharp.Collections
-
+open Common.GridHelpers
 
 let isValid(xStart: int, xEnd: int, yPos: int, grid: char[,], xSize: int, ySize: int) : bool =
     let mutable checkXStart = xStart - 1
@@ -35,11 +33,7 @@ let isValidGear((xPos: int, yPos: int), grid: char[,], xSize: int, ySize: int, n
     nSet |> Set.iter (fun n -> power <- power * n)
     nSet.Count = 2, power
 
-let part1(lines: string array) =
-    let numbers = lines |> Array.mapi (fun y line -> (getMatches @"\d+" line) |> Seq.collect (fun mtch -> mtch.Value.ToCharArray() |> Array.mapi (fun x _ -> (mtch.Index + x, y), mtch.Value))) |> Array.collect Array.ofSeq |> Map.ofArray 
-    let grid = lines |> Array.mapi (fun y line -> line.ToCharArray() |> Array.mapi (fun x chr -> (x, y), match numbers.TryFind x y with
-                                                                                    | Some(n) -> int(n)
-                                                                                    | None -> chr))
+let part1(lines: string array) =    
     let xSize, ySize = getSize lines
     let grid = Array2D.init xSize ySize (fun x y -> lines[y].ToCharArray()[x])
     let numberPosMap = lines |> Array.mapi (fun y line ->

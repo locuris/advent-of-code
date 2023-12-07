@@ -9,7 +9,12 @@ module GridHelpers =
     let getSize(input: string array): int * int =
         input |> Array.item 0 |> String.length, input.Length
         
+module Data =
+    let countOf value collection : int =
+        collection |> Array.filter (fun item -> item = value) |> Array.length
+        
 module Input =
+    
     let mainMenu() =
         Console.Write("Enter the day you want to run: ")
         let day = Console.ReadLine() |> int
