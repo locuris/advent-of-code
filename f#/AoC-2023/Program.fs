@@ -2,14 +2,6 @@
 
 open System.Diagnostics
 open System.IO
-open System.Threading
-open day1
-open day2
-open day3
-open day4
-open day5
-open day6
-open day7
 open Common.Input
 
 printfn "Hello from F#"
@@ -22,6 +14,7 @@ let days = Map [
         (5, [day5.part1; day5.part2])
         (6, [day6.part1; day6.part2])
         (7, [day7.part1; day7.part2])
+        (8, [day8.part1; day8.part2])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -40,7 +33,7 @@ let getAnswer(day: int) (part: int) (input: string array) =
 
 
 let runAllDays() =
-    days |> Map.iter (fun day funcs ->        
+    days |> Map.iter (fun day _ ->        
         let file = getInput day false
         let test = getInput day true
         let stopwatch = Stopwatch.StartNew()
@@ -54,7 +47,7 @@ let runAllDays() =
 
 [<EntryPoint>]
 let main argv =    
-    (*runAllDays()*)
-    let input = getInput 7 false
-    getAnswer 7 2 input
+    (*runAllDays()*)    
+    let input = getInput 8 false
+    getAnswer 8 2 input
     0

@@ -25,6 +25,7 @@ module Input =
         day, part, test
         
     let getLinesGroupedByNewLine (lines: string array): string array list =
+        
         let finalList = ResizeArray<string array>()
         let currentList = ResizeArray<string>()
         for line in lines do
