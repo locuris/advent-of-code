@@ -18,7 +18,7 @@ let days = Map [
     ]
 
 let getInputSpec(day: int) (file: string) =
-    File.ReadLines($"C:/Users/louis/Personal/advent-of-code/f#/Input/{2023}/day{day}/{file}.txt") |> Array.ofSeq
+    File.ReadLines($"{Directory.GetCurrentDirectory()}/../../../../Input/{2023}/day{day}/{file}.txt") |> Array.ofSeq
 
 let getInput(day: int) (test: bool) =
     let file = if test then "test" else "input"
@@ -37,17 +37,18 @@ let runAllDays() =
         let file = getInput day false
         let test = getInput day true
         let stopwatch = Stopwatch.StartNew()
-        days[day][0] test
-        days[day][0] file
-        days[day][1] test
-        days[day][1] file
+        days[day][0] test |> ignore
+        days[day][0] file |> ignore
+        days[day][1] test |> ignore
+        days[day][1] file |> ignore
         stopwatch.Stop()
         printfn $"Day {day} ran in {stopwatch.ElapsedMilliseconds} ms")
     
 
 [<EntryPoint>]
 let main argv =    
-    (*runAllDays()*)    
+    (*runAllDays()*)
+    printfn $"{Directory.GetCurrentDirectory()}"
     let input = getInput 8 false
     getAnswer 8 2 input
     0

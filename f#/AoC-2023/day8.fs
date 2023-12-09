@@ -25,15 +25,12 @@ let rec traverseTree (tree: Map<string, string list>) (node: string) (steps: int
     
 
     
-let rec traverseTrees (tree: Map<string, string list>) (nodes: string array) (step: int) (instructionSet: InstructionSet) (debug: Map<int, int>) : int =
+let rec traverseTrees (tree: Map<string, string list>) (nodes: string array) (step: int) (instructionSet: InstructionSet) (debug: Map<int, string * int>) : int =
     let newDebug =
         if nodes |> Array.exists (_.EndsWith('Z')) then
-            let endPaths = nodes |> Array.sumBy (fun node -> if node.EndsWith('Z') then 1 else 0)                                              
-            let n = debug |> Map.map (fun path count -> if path = endPaths then count + 1 else count)
-            let concat = n.Values |> Seq.map (_.ToString()) |> String.concat "."
-            printfn $"{concat}"
-            n
+            debug |> Map.map (fun path node -> if node |> fst = "" && nodes[path].EndsWith('Z') then nodes[path] steps else node)
             else debug
+    if not (debug.Values |> Seq.map fst |> Seq.contains "") then printfn $"Wowsers"
     if nodes |> Array.forall (_.EndsWith('Z'))
     then step
     else
@@ -53,6 +50,7 @@ let part1 (lines: string array) : string =
 let part2 (lines: string array) : string =
     let instructions, nodes = lines |> getInstructionsAndNodes
     let startNodes = nodes.Keys |> Seq.filter (_.EndsWith('A')) |> Array.ofSeq
-    let debug = startNodes |> Array.mapi (fun i _ -> (i, 0)) |> Map.ofArray
+    let targetNode = nodes.Keys |> Seq.filter (_.EndsWith('Z')) |> Array.ofSeq 
+    let debug = startNodes |> Array.mapi (fun i _ -> i ("" 0)) |> Map.ofArray
     traverseTrees nodes startNodes 0 instructions debug |> string
     
