@@ -1,5 +1,6 @@
 ﻿module day8
 
+open System
 open Common.Input
 
 
@@ -13,28 +14,22 @@ type InstructionSet =
             instructions = instructionSet.ToCharArray() |> Array.map (fun c -> if c = 'R' then 1 else 0)
         }
         
-        member this.nextInstruction(stepCount: int) : int =
-            this.instructions[stepCount % this.instructions.Length]
+        member this.nextInstruction(stepCount: int64) : int =
+            let index = stepCount % int64(this.instructions.Length) |> int            
+            this.instructions[index]
     end
 
 
-let rec traverseTree (tree: Map<string, string list>) (node: string) (steps: int) (instructionSet: InstructionSet) : int =
-    if node = "ZZZ"
+let rec traverseTree (tree: Map<string, string list>) (steps: int64) (instructionSet: InstructionSet) (endCondition: string -> bool) (node: string) : int64 =
+    if endCondition(node)
     then steps
-    else traverseTree tree (tree[node][instructionSet.nextInstruction(steps)]) (steps + 1) instructionSet
+    else traverseTree tree (steps + 1L) instructionSet endCondition (tree[node][instructionSet.nextInstruction(steps)])                                                       
     
-
-    
-let rec traverseTrees (tree: Map<string, string list>) (nodes: string array) (step: int) (instructionSet: InstructionSet) (debug: Map<int, string * int>) : int =
-    let newDebug =
-        if nodes |> Array.exists (_.EndsWith('Z')) then
-            debug |> Map.map (fun path node -> if node |> fst = "" && nodes[path].EndsWith('Z') then nodes[path] steps else node)
-            else debug
-    if not (debug.Values |> Seq.map fst |> Seq.contains "") then printfn $"Wowsers"
+let rec traverseTrees (tree: Map<string, string list>) (nodes: string array) (step: int64) (instructionSet: InstructionSet) : int64 =    
     if nodes |> Array.forall (_.EndsWith('Z'))
     then step
     else
-        traverseTrees tree (nodes |> Array.map (fun node -> tree[node][instructionSet.nextInstruction(step)])) (step + 1) instructionSet newDebug
+        traverseTrees tree (nodes |> Array.map (fun node -> tree[node][instructionSet.nextInstruction(step)])) (step + 1L) instructionSet
     
 
 let getInstructionsAndNodes (lines: string array) : InstructionSet * Map<string, string list> =
@@ -42,15 +37,30 @@ let getInstructionsAndNodes (lines: string array) : InstructionSet * Map<string,
     let instructions = instructionInput |> InstructionSet
     let nodes = nodesInput |> Array.map (getMatchesAsStringArray @"\w\w\w") |> Array.map (fun node -> (node[0], [node[1];node[2]])) |> Map.ofArray
     instructions, nodes
+    
+let part1EndCondition (node: string) : bool =
+    node = "AAA"
 
 let part1 (lines: string array) : string =
     let instructions, nodes = lines |> getInstructionsAndNodes
-    traverseTree nodes "AAA" 0 instructions |> string
+    traverseTree nodes 0 instructions part1EndCondition "AAA" |> string
+    
+let rec gcd a b =
+    if b = 0L then a else gcd b (a % b)
+
+let lcm a b = (a * b) / (gcd a b)
+
+let findLCM (list: int64 list) =
+    match list with
+    | [] -> 0L
+    | h::t -> List.fold lcm h t
+
+
+let part2EndCondition (node: string) : bool =
+    node.EndsWith('Z')    
     
 let part2 (lines: string array) : string =
     let instructions, nodes = lines |> getInstructionsAndNodes
-    let startNodes = nodes.Keys |> Seq.filter (_.EndsWith('A')) |> Array.ofSeq
-    let targetNode = nodes.Keys |> Seq.filter (_.EndsWith('Z')) |> Array.ofSeq 
-    let debug = startNodes |> Array.mapi (fun i _ -> i ("" 0)) |> Map.ofArray
-    traverseTrees nodes startNodes 0 instructions debug |> string
+    let pathLengths = nodes.Keys |> Seq.filter (_.EndsWith('A')) |> List.ofSeq |> List.map (traverseTree nodes 0L instructions part2EndCondition) |> List.sort
+    pathLengths |> findLCM |> string
     
