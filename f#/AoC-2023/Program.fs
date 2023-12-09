@@ -15,6 +15,7 @@ let days = Map [
         (6, [day6.part1; day6.part2])
         (7, [day7.part1; day7.part2])
         (8, [day8.part1; day8.part2])
+        (9, [day9.part1; day9.part2])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -48,7 +49,9 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    printfn $"{Directory.GetCurrentDirectory()}"
-    let input = getInput 8 false
-    getAnswer 8 2 input
+    let day = 9
+    let part = 2
+    
+    let input = getInput day false    
+    getAnswer day part input
     0
