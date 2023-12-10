@@ -33,9 +33,9 @@ let rec traverseTrees (tree: Map<string, string list>) (nodes: string array) (st
     
 
 let getInstructionsAndNodes (lines: string array) : InstructionSet * Map<string, string list> =
-    let instructionInput, nodesInput = lines |> getLinesGroupedByNewLine |> fun groups -> groups[0][0], groups[1]
+    let instructionInput, nodesInput = lines |> GetLinesGroupedByNewLine |> fun groups -> groups[0][0], groups[1]
     let instructions = instructionInput |> InstructionSet
-    let nodes = nodesInput |> Array.map (getMatchesAsStringArray @"\w\w\w") |> Array.map (fun node -> (node[0], [node[1];node[2]])) |> Map.ofArray
+    let nodes = nodesInput |> Array.map (GetMatchesAsStringArray @"\w\w\w") |> Array.map (fun node -> (node[0], [node[1];node[2]])) |> Map.ofArray
     instructions, nodes
     
 let part1EndCondition (node: string) : bool =

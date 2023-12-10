@@ -16,10 +16,10 @@ type Game =
     
 let createGame(line: string) : Game =    
     Game(       
-       line |> getMatchAsString @"\d+" |> int,
-       line |> getGroupsAsStringArray @"(\d+).blue" |> Array.maxBy int |> int,
-       line |> getGroupsAsStringArray @"(\d+).red" |> Array.maxBy int |> int,
-       line |> getGroupsAsStringArray @"(\d+).green" |> Array.maxBy int |> int
+       line |> GetMatchAsString @"\d+" |> int,
+       line |> GetGroupsAsStringArray @"(\d+).blue" |> Array.maxBy int |> int,
+       line |> GetGroupsAsStringArray @"(\d+).red" |> Array.maxBy int |> int,
+       line |> GetGroupsAsStringArray @"(\d+).green" |> Array.maxBy int |> int
     )
     
 let part1(lines: string array) =
