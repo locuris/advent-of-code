@@ -11,6 +11,14 @@ type Direction =
     | Left = 2
     | Right = 3
     
+let DirectionPoint (direction: Direction) =
+    match direction with
+    | Direction.Up -> Point(0, 1)
+    | Direction.Down -> Point(0, -1)
+    | Direction.Left -> Point(-1, 0)
+    | Direction.Right -> Point(1, 0)
+    | _ -> failwith "Invalid direction"
+    
 type PipeCharacter =
     | Pipe = '|'
     | Dash = '-'
@@ -25,7 +33,7 @@ type PipeCharacter =
 type PipeType =
     | RegularPipe of Direction * Direction
     | Start
-    | None    
+    | Empty    
     
 let CharToPipe chr =
     match Core.LanguagePrimitives.EnumOfValue<char, PipeCharacter>(chr) with
@@ -35,20 +43,44 @@ let CharToPipe chr =
     | PipeCharacter.J -> RegularPipe(Direction.Up, Direction.Left)
     | PipeCharacter.F -> RegularPipe(Direction.Down, Direction.Right)
     | PipeCharacter.Seven -> RegularPipe(Direction.Down, Direction.Left)
-    | PipeCharacter.Dot -> None
+    | PipeCharacter.Dot -> Empty
     | PipeCharacter.S -> Start
     | e -> failwith $"Invalid pipe character {e}"
     
     
-type PipeBase = PipeType * Point
+type PipeBase =
+    | NoneP of Point
+    | StartPipe of Point
+    | RealPipe of Point * PipeType * Point * Point
 
+let ToPipeBase (point: Point) (pipe: PipeType) =
+    match pipe with
+    | RegularPipe (d1, d2) -> RealPipe(point, pipe, point + (DirectionPoint d1), point + (DirectionPoint d2))
+    | Empty -> NoneP(point)
+    | Start -> StartPipe(point)
+    | a -> failwith $"Invalid argument {a}"
+    
+let CanJoin (pipes: PipeBase * PipeBase) : bool =
+    match pipes with
+    | RealPipe (point1, _, point1A, point1B), RealPipe (point2, _, point2A, point2B) -> (point1 = point2A || point1 = point2B) && (point2 = point1A || point2 = point1B)
+    | _ -> false
+    
     
 type Pipes =
     | Start of PipeBase * Pipes
     | None
     | Pipe of PipeBase * Pipes * Pipes
+    
+type SimplePipe = PipeBase * PipeBase * PipeBase
 
-
+let toPipes (pipeBase: PipeBase) (pipes: Map<Point, PipeBase>) =
+    match pipeBase with
+    | RealPipe point, pipe, pointA, pointB ->
+        let pipe = RealPipe(point, pipe, pointA, pointB)
+        let pipeA = if pipes.ContainsKey pointA then pipes[pointA] else NoneP(pointA)
+        let pipeB = if pipes.ContainsKey pointB then pipes[pointB] else NoneP(pointB)
+        SimplePipe(pipeA, pipe, pibeB)
+    | _ -> NoneSP
 
 (*
 type Pipes =
@@ -71,8 +103,8 @@ type Pipes =
             
 
 let part1(lines: string array) : string =
-    lines |> Input.InputAsCharArray |> 
-    |> ignore*)
+    lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> MapOfArray2D |> Map.map ToPipeBase
+    |> ignore
     ""
     
 let part2(lines: string array) : string =

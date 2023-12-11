@@ -18,7 +18,7 @@ module Data =
         
         static member (+) (a: Point, b: Point) =
            Point(a.X + b.X, a.Y + b.Y)
-        
+           
         interface IComparable with
             member this.CompareTo(other) =
                 if this.Equals(other) then 0 else 1
@@ -41,7 +41,7 @@ module Data =
                     yield collection[x,y]
         } |> Array.ofSeq
         
-    let mapOfArray2D (collection: 'T[,]) : Map<Point, 'T> =
+    let MapOfArray2D (collection: 'T[,]) : Map<Point, 'T> =
         let xSize = collection |> Array2D.length1
         let ySize = collection |> Array2D.length2
         seq {
@@ -98,6 +98,6 @@ module Input =
         let match_ = Regex.Match(text, pattern)
         match_.Value
         
-    let InputAsCharArray (text: string array) : char[,] * Size =
+    let InputAsCharArray2D (text: string array) : char[,] * Size =
         let size = Size(text[0].Length, text.Length)
         Array2D.init size.Width size.Height (fun x y -> text[y].ToCharArray()[x]), size
