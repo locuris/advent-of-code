@@ -53,6 +53,6 @@ let main argv =
     let day = 10
     let part = 1
     
-    let input = getInput day true    
+    let input = getInput day false    
     getAnswer day part input
     0

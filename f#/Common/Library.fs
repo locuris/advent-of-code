@@ -12,7 +12,7 @@ module GridHelpers =
         
 module Data =    
     
-    type Point(x: int, y: int) =
+    (*type Point(x: int, y: int) =
         member this.X = x
         member this.Y = y
         
@@ -21,12 +21,20 @@ module Data =
            
         interface IComparable with
             member this.CompareTo(other) =
-                if this.Equals(other) then 0 else 1
+                match other with
+                | :? Point as point ->
+                    if this.X = point.X && this.Y = point.Y then 0
+                    elif this.X * this.Y > point.X * point.Y then 1
+                    else -1
+                | _ -> -1
         
         override this.Equals other =
             match other with
             | :? Point as p -> p.X = this.X && p.Y = this.Y
             | _ -> false
+            
+        override this.GetHashCode() =
+            this.X * this.Y*)
             
     
     let countOf value collection : int =
@@ -41,13 +49,13 @@ module Data =
                     yield collection[x,y]
         } |> Array.ofSeq
         
-    let MapOfArray2D (collection: 'T[,]) : Map<Point, 'T> =
+    let MapOfArray2D (collection: 'T[,]) : Map<(int * int), 'T> =
         let xSize = collection |> Array2D.length1
         let ySize = collection |> Array2D.length2
         seq {
-            for y in 0..ySize do
-                for x in 0..xSize do
-                    yield Point(x, y), collection[x,y]
+            for y in 0..ySize-1 do
+                for x in 0..xSize-1 do
+                    yield (x, y), collection[x,y]
         } |> Map.ofSeq
         
     
