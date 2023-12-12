@@ -17,6 +17,7 @@ let days = Map [
         (8, [day8.part1; day8.part2])
         (9, [day9.part1; day9.part2])
         (10, [day10.part1; day10.part2])
+        (11, [day11.part1; day11.part2])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -50,7 +51,7 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    let day = 10
+    let day = 11
     let part = 1
     
     let input = getInput day false    
