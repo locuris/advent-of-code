@@ -1,6 +1,7 @@
 ﻿module day10
 
 open System
+open System.Net
 open Common.Data
 open Common
 
@@ -14,6 +15,14 @@ type Direction =
     | Down = 1 
     | Left = 2
     | Right = 3
+    
+let OppositeDirection (direction: Direction) =
+    match direction with
+    | Direction.Up -> Direction.Down
+    | Direction.Down -> Direction.Up
+    | Direction.Left -> Direction.Right
+    | Direction.Right -> Direction.Left
+    
     
 let DirectionPoint (direction: Direction) =
     match direction with
@@ -77,6 +86,32 @@ type PipePath =
     | None
     | Pipe of PipeBase * PipePath
     
+type PipeTree =
+    | End
+    | PipeNode of PipeBase * PipeTree
+    
+    
+
+let rec buildPipePath (outDirection: Direction) (point: Point) (pipes: Map<(int * int), PipeBase>) =
+    let nextPoint = PointAdd point (DirectionPoint outDirection)
+    if pipes.ContainsKey(nextPoint) then
+        let nextPipe = pipes[nextPoint]
+        match nextPipe with
+        | PipeBase.None _ | PipeBase.Start _ -> End
+        | PipeBase.Pipe (_, pipe, _, _) ->
+            match pipe with
+            | EmptyPipe | StartPipe _ -> End
+            | RegularPipe (d1, d2) ->
+                let inDirection = OppositeDirection outDirection
+                if d1 = inDirection then
+                    PipeNode(nextPipe, buildPipePath d2 nextPoint pipes)
+                elif d2 = inDirection then
+                    PipeNode(nextPipe, buildPipePath d1 nextPoint pipes)
+                else End
+    else
+        PipeTree.End
+        
+    
 let rec ToPipePath (pipe: PipeBase) (pipeBases: Map<(Point), PipeBase>) (previousPoint: Point) (hasStart: bool) (step: int) =
     printfn $"Step {step}"
     match pipe with
@@ -116,32 +151,24 @@ type Pipes =
     end
     *)
     
-let rec TraversePath (path: PipePath) (length: int) =
+let rec TraversePath (path: PipeTree) (length: int) =
     match path with
-    | Start (_, next) -> TraversePath next (length + 1)
-    | Pipe (_, next) -> TraversePath next (length + 1)
+    | PipeNode (_, next) -> TraversePath next (length + 1)
     | _ -> length
             
 
 let part1(lines: string array) : string =
     let pipes = lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> MapOfArray2D |> Map.map ToPipeBase
-    let start = pipes.Values |> Seq.find (fun pipe ->
+    let start = pipes |> Map.filter (fun _ pipe ->
                                                 match pipe with
                                                 | PipeBase.Start _ -> true
-                                                | _ -> false)
-    (*pipes |> Map.iter (fun (x, y) pipe -> printfn $"Point {x} {y} {pipe}" )*)
-    let (startPoint, _) =
-        match start with
-        | PipeBase.Start (sP, nP) -> sP, nP
-        | _ -> (0,0), (0,0)
-    let path =
-        try ToPipePath start pipes startPoint false 0
-        with
-        | :? StackOverflowException ->
-            printfn "Sad"
-            None
-    (TraversePath path 0) / 2 |> string
+                                                | _ -> false) |> Map.keys |> Seq.head
     
+    let pipeSystem = buildPipePath Direction.Down start pipes
+    //6896
+    let path = TraversePath pipeSystem 0
+    let half = (path / 2) + (path % 2)
+    half |> string
     
 let part2(lines: string array) : string =
     ""

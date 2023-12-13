@@ -51,7 +51,7 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    let day = 11
+    let day = 10
     let part = 1
     
     let input = getInput day false    
