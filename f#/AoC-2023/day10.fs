@@ -66,12 +66,11 @@ type PipeBase =
     | Start of Point * Point
     | Pipe of Point * PipeType * Point * Point
 
-let ToPipeBase (point: Point) (pipe: PipeType) =
+let ToPipeBase (point: Point) (pipe: PipeType) : PipeBase =
     match pipe with
     | RegularPipe (d1, d2) -> Pipe(point, pipe, PointAdd point  (DirectionPoint d1), PointAdd point  (DirectionPoint d2))
     | EmptyPipe -> None(point)
     | StartPipe dir -> Start(point, PointAdd point (DirectionPoint dir))
-    | a -> failwith $"Invalid argument {a}"
     
 let CanJoin (pipes: PipeBase * PipeBase) : bool =
     match pipes with
@@ -110,65 +109,35 @@ let rec buildPipePath (outDirection: Direction) (point: Point) (pipes: Map<(int 
                 else End
     else
         PipeTree.End
-        
-    
-let rec ToPipePath (pipe: PipeBase) (pipeBases: Map<(Point), PipeBase>) (previousPoint: Point) (hasStart: bool) (step: int) =
-    printfn $"Step {step}"
-    match pipe with
-    | PipeBase.None _ -> None
-    | PipeBase.Start (point, next) ->
-        if not (pipeBases.ContainsKey next) then None else
-        let nextPipeBase = pipeBases[next]
-        if hasStart then
-            None
-            else Start(pipe, ToPipePath nextPipeBase pipeBases point true (step + 1))
-    | PipeBase.Pipe (point, _, point1, point2) ->
-        if previousPoint <> point1 && previousPoint <> point2 then None else
-        let nextPoint = (if point1 = previousPoint then point2 else point1)
-        match (pipeBases |> Map.tryFind nextPoint) with
-        | Some nextPipe ->
-            if (CanJoin (pipe, nextPipe)) then
-                Pipe(pipe, ToPipePath nextPipe pipeBases point hasStart (step + 1))
-            else None
-        | _ -> None                
-
-(*
-type Pipes =
-    struct
-        val private _pipes: Map<Point, Pipe>
-        val private _size: Size
-        new (lines: char[,], size: Size) = {
-            _pipes = lines |> Array2D.map Core.LanguagePrimitives.EnumOfValue<char, PipeType> |> mapOfArray2D |> Map.map (fun point pipe -> point, pipe)
-            _size = size
-        }
-        
-        member this.GetPipe (point: Point) : Pipe =
-            this._pipes[point]
-            
-        member this.ContainsPoint (point: Point) =
-            this._pipes.ContainsKey point            
-            
-    end
-    *)
     
 let rec TraversePath (path: PipeTree) (length: int) =
     match path with
     | PipeNode (_, next) -> TraversePath next (length + 1)
     | _ -> length
-            
+    
+let BuildPipes (lines: string array) : Map<Point, PipeBase> =
+    lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> MapOfArray2D |> Map.map ToPipeBase
+    
+let GetStart (pipes: Map<Point, PipeBase>) =
+    pipes |> Map.filter (fun _ pipe ->
+                         match pipe with
+                         | PipeBase.Start _ -> true
+                         | _ -> false) |> Map.keys |> Seq.head
 
 let part1(lines: string array) : string =
-    let pipes = lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> MapOfArray2D |> Map.map ToPipeBase
-    let start = pipes |> Map.filter (fun _ pipe ->
-                                                match pipe with
-                                                | PipeBase.Start _ -> true
-                                                | _ -> false) |> Map.keys |> Seq.head
+    let pipes = BuildPipes lines
+    let start = GetStart pipes
     
     let pipeSystem = buildPipePath Direction.Down start pipes
-    //6896
+    
     let path = TraversePath pipeSystem 0
     let half = (path / 2) + (path % 2)
     half |> string
     
 let part2(lines: string array) : string =
-    ""
+    let pipes = BuildPipes lines
+    let start = GetStart pipes
+    let pipeSystem = buildPipePath Direction.Down start pipes
+    let pipesByRow = pipes |> Map.toArray |> Array.groupBy (fun ((_, y), _) -> y)
+    let pipesByColumn = pipes |> Map.toArray |> Array.groupBy (fun ((x, _), _) -> x)
+    
