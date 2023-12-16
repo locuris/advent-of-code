@@ -137,7 +137,38 @@ let part1(lines: string array) : string =
 let part2(lines: string array) : string =
     let pipes = BuildPipes lines
     let start = GetStart pipes
-    let pipeSystem = buildPipePath Direction.Down start pipes
-    let pipesByRow = pipes |> Map.toArray |> Array.groupBy (fun ((_, y), _) -> y)
-    let pipesByColumn = pipes |> Map.toArray |> Array.groupBy (fun ((x, _), _) -> x)
-    
+    //let pipeSystem = buildPipePath Direction.Down start pipes
+    let pipesByRow = pipes
+                     |> Map.toArray
+                     |> Array.filter (fun ((_, _), p) ->
+                         match p with
+                         | PipeBase.None _ -> false
+                         | _ -> true)
+                     |> Array.groupBy (fun ((_, y), _) -> y)
+    let pipesByColumn = pipes
+                     |> Map.toArray
+                     |> Array.filter (fun ((_, _), p) ->
+                         match p with
+                         | PipeBase.None _ -> false
+                         | _ -> true)
+                     |> Array.groupBy (fun ((x, _), _) -> x)
+    let minX, minY = (pipesByColumn |> Array.minBy fst |> fst), (pipesByRow |> Array.minBy fst |> fst)
+    let maxX, maxY = (pipesByColumn |> Array.maxBy fst |> fst), (pipesByRow |> Array.maxBy fst |> fst)
+    let mutable ans = 0
+    for x in minX..maxX do
+        for y in minY..maxY do
+            let pipe = pipes |> Map.tryFind(x, y)
+            let isEmpty =
+                match pipe with
+                | Option.Some p ->
+                    match p with
+                    | PipeBase.None _ -> true
+                    | _ -> false
+                | Option.None -> true
+            let surrounded = (pipesByRow |> Array.sumBy (fun (i, _) -> if i < y then 1 else 0)) % 2 = 1 &&
+                             (pipesByRow |> Array.sumBy (fun (i, _) -> if i > y then 1 else 0)) % 2 = 1 &&
+                             (pipesByColumn |> Array.sumBy (fun (i, _) -> if i < x then 1 else 0)) % 2 = 1 &&
+                             (pipesByColumn |> Array.sumBy (fun (i, _) -> if i > x then 1 else 0)) % 2 = 1
+            if isEmpty && surrounded then
+                ans <- ans + 1
+    ans |> string

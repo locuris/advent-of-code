@@ -52,7 +52,7 @@ let runAllDays() =
 let main argv =    
     (*runAllDays()*)
     let day = 10
-    let part = 1
+    let part = 2
     
     let input = getInput day true
     getAnswer day part input
