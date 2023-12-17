@@ -1,41 +1,17 @@
 ﻿namespace Common
 
 open System
-open System.Collections.Generic
-open System.Diagnostics
 open System.Drawing
 open System.Text.RegularExpressions
 
 module GridHelpers =
     let getSize(input: string array): int * int =
         input |> Array.item 0 |> String.length, input.Length
-        
+ 
+[<RequireQualifiedAccess>]       
 module Data =    
     
-    (*type Point(x: int, y: int) =
-        member this.X = x
-        member this.Y = y
-        
-        static member (+) (a: Point, b: Point) =
-           Point(a.X + b.X, a.Y + b.Y)
-           
-        interface IComparable with
-            member this.CompareTo(other) =
-                match other with
-                | :? Point as point ->
-                    if this.X = point.X && this.Y = point.Y then 0
-                    elif this.X * this.Y > point.X * point.Y then 1
-                    else -1
-                | _ -> -1
-        
-        override this.Equals other =
-            match other with
-            | :? Point as p -> p.X = this.X && p.Y = this.Y
-            | _ -> false
-            
-        override this.GetHashCode() =
-            this.X * this.Y*)
-            
+    type Point = int * int
     
     let countOf value collection : int =
         collection |> Array.filter (fun item -> item = value) |> Array.length
@@ -49,7 +25,7 @@ module Data =
                     yield collection[x,y]
         } |> Array.ofSeq
         
-    let MapOfArray2D (collection: 'T[,]) : Map<(int * int), 'T> =
+    let MapOfArray2D (collection: 'T[,]) : Map<Point, 'T> =
         let xSize = collection |> Array2D.length1
         let ySize = collection |> Array2D.length2
         seq {
@@ -58,6 +34,9 @@ module Data =
                     yield (x, y), collection[x,y]
         } |> Map.ofSeq
         
+    
+    let charToBool (character: char) (line: string) : bool array =
+        line.ToCharArray() |> Array.map (fun c -> c = character)
     
         
 module Input =

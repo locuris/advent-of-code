@@ -2,7 +2,6 @@
 
 open System
 open System.Net
-open Common.Data
 open Common
 
 type Point = int * int
@@ -116,7 +115,7 @@ let rec TraversePath (path: PipeTree) (length: int) =
     | _ -> length
     
 let BuildPipes (lines: string array) : Map<Point, PipeBase> =
-    lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> MapOfArray2D |> Map.map ToPipeBase
+    lines |> Input.InputAsCharArray2D |> fst |> Array2D.map CharToPipe |> Data.MapOfArray2D |> Map.map ToPipeBase
     
 let GetStart (pipes: Map<Point, PipeBase>) =
     pipes |> Map.filter (fun _ pipe ->

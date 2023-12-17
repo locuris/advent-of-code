@@ -1,7 +1,7 @@
 ﻿module day7
 
 open System
-open Common.Data
+open Common
 
 
 
@@ -25,7 +25,7 @@ let getCardScore (cards: Map<char, int>) : int =
                 5
                 else if cards.Values.Contains 3 then
                     4
-                    else if (countOf 2 (cards.Values |> Array.ofSeq)) = 2  then
+                    else if (Data.countOf 2 (cards.Values |> Array.ofSeq)) = 2  then
                         3
                         else if cards.Values.Contains 2 then
                             2
@@ -35,7 +35,7 @@ let getSecondaryScore (cards: string) : int array =
     cards.ToCharArray() |> Array.map getCardRank
     
 let getCards(hand: string) : Map<char, int> =
-    hand.ToCharArray() |> Array.distinct |> Array.map (fun card -> (card, hand.ToCharArray() |> countOf card)) |> Map.ofArray
+    hand.ToCharArray() |> Array.distinct |> Array.map (fun card -> (card, hand.ToCharArray() |> Data.countOf card)) |> Map.ofArray
     
 let getCardsWithJokers(hand: string) : Map<char, int> =
     let cards = getCards hand
