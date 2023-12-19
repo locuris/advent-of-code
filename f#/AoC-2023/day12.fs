@@ -65,23 +65,40 @@ let checkPossibility (springs: Spring array) (pattern: Spring array) (offset: in
             | _ -> true)
         |> Array.exists id
     )
-    
 
 
-let check (springs: Spring array) (pattern: Spring array) (offset: int) : int =
-    pattern
-    |> Array.map (fun spring ->
-        match spring with
-        | Any (start, end_) ->
-            springs[]
-        | Damaged index -> springs[index + offset].GetType() <> spring.GetType())
-    |> Array.head
 
+let check (springs: Spring array) (pattern: Spring array) (offset: int) : bool =
+    let allPatterns =
+        pattern
+        |> Array.filter (fun p ->
+            match p with
+            | Any _ -> true
+            | _ -> false)
+        |> Array.collect (fun spring ->
+            match spring with
+            | Any (start, end_) ->
+                [|start..start + end_|]
+                |> Array.map (fun any ->
+                    pattern[0..start - 1]
+                    |> Array.append [| for a in start..any do Operational(a) |]
+                    |> Array.append [| for e in any + 1 .. pattern.Length - 1 do pattern[e - end_] |]
+                )
+            | _ -> failwithf "BOOM")
+    allPatterns |> Array.iter (fun pattern ->
+        pattern |> Array.iter (fun spring ->
+            match spring with
+            | Unknown _ -> printf "?"
+            | Operational _ -> printf "."
+            | Damaged _ -> printf "#"
+            | Any _ -> printf "A")
+        printfn "")
+    true
 
 let checkPossibilities ((springs, pattern): Spring array * Spring array) : int =
     let answer =
         [| 0 .. (springs.Length - pattern.Length) |]
-        |> Array.sumBy (fun offset -> if checkPossibility springs pattern offset then 1 else 0)
+        |> Array.sumBy (fun offset -> if check springs pattern offset then 1 else 0)
 
     printfn $"{answer}"
     answer
