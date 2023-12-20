@@ -2,7 +2,6 @@
 
 open System.Diagnostics
 open System.IO
-open Common.Input
 
 printfn "Hello from F#"
 
@@ -19,6 +18,7 @@ let days = Map [
         (10, [day10.part1; day10.part2])
         (11, [day11.part1; day11.part2])
         (12, [day12.part1; day12.part2])
+        (14, [day14.part1])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -52,7 +52,7 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    let day = 12
+    let day = 14
     let part = 1
     
     let input = getInput day true

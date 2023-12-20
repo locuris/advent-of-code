@@ -6,6 +6,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AoC-2023", "AoC-2023\AoC-20
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Common", "Common\Common.fsproj", "{3433CFFD-7FF1-4D8A-8475-0E6DE98349C8}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Utility", "Utility\Utility.fsproj", "{5AF5E427-A8E5-47AC-A306-8B066AC0F9BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{3433CFFD-7FF1-4D8A-8475-0E6DE98349C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3433CFFD-7FF1-4D8A-8475-0E6DE98349C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3433CFFD-7FF1-4D8A-8475-0E6DE98349C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AF5E427-A8E5-47AC-A306-8B066AC0F9BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AF5E427-A8E5-47AC-A306-8B066AC0F9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AF5E427-A8E5-47AC-A306-8B066AC0F9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AF5E427-A8E5-47AC-A306-8B066AC0F9BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

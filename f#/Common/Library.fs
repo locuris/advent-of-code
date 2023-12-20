@@ -2,6 +2,7 @@
 
 open System
 open System.Drawing
+open System.IO
 open System.Text.RegularExpressions
 
 module GridHelpers =
@@ -88,3 +89,6 @@ module Input =
     let InputAsCharArray2D (text: string array) : char[,] * Size =
         let size = Size(text[0].Length, text.Length)
         Array2D.init size.Width size.Height (fun x y -> text[y].ToCharArray()[x]), size
+        
+    let projectRootDirectory =
+        $@"{Directory.GetCurrentDirectory()}\..\..\..\.."

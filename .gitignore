@@ -7,3 +7,6 @@
 /f#/AoC-2023/obj/
 /f#/Common/bin/
 /f#/Common/obj/
+**/bin/*
+**/obj
+**/.idea
