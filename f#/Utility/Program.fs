@@ -7,8 +7,14 @@ let year = 2023
 
 let inputDirectoy = @$"{Input.projectRootDirectory}\Input\{year}\"
 
+let mutable existingDirs = Directory.GetDirectories(inputDirectoy)
 
-let existingDirs = Directory.GetDirectories(inputDirectoy)
+for day in 1..25 do
+    if not (existingDirs |> Array.exists (_.EndsWith("{day}"))) then
+        Directory.CreateDirectory(@$"{inputDirectoy}day{day.ToString()}") |> ignore
+        
+existingDirs <- Directory.GetDirectories(inputDirectoy)
+    
 
 let testFile (dir: string) =
     @$"{dir}\test.txt"

@@ -18,7 +18,19 @@ let days = Map [
         (10, [day10.part1; day10.part2])
         (11, [day11.part1; day11.part2])
         (12, [day12.part1; day12.part2])
-        (14, [day14.part1])
+        (13, [day13.part1; day13.part2])
+        (14, [day14.part1; day14.part2])
+        (15, [day15.part1; day15.part2])
+        (16, [day16.part1; day16.part2])
+        (17, [day17.part1; day17.part2])
+        (18, [day18.part1; day18.part2])
+        (19, [day19.part1; day19.part2])
+        (20, [day20.part1; day20.part2])
+        (21, [day21.part1; day21.part2])
+        (22, [day22.part1; day22.part2])
+        (23, [day23.part1; day23.part2])
+        (24, [day24.part1; day24.part2])
+        (25, [day25.part1; day25.part2])
     ]
 
 let getInputSpec(day: int) (file: string) =
@@ -52,9 +64,9 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    let day = 14
-    let part = 1
+    let day = 15
+    let part = 2
     
-    let input = getInput day true
+    let input = getInput day false
     getAnswer day part input
     0
