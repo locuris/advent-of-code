@@ -4,32 +4,29 @@ open System
 open day10
 
 type Point = { x: int; y: int }
-
-type Points =
-    | Single of Point
-    | Double of Point * Point
-    
-let getPointFromSingle = function
-    | Single point -> point
-    | _ -> ArgumentException() |> raise
+    with static member (+) (left, right) = { x = left.x + right.x; y = left.y + right.y }
 
 type Direction =
-    | Up = 0
-    | Down = 1
-    | Left = 2
-    | Right = 3
-    | SplitHorizontal = 4
-    | SplitVertical = 5
+    | Up of Point
+    | Down of Point
+    | Left of Point
+    | Right of Point
     
+    member this.Point =
+        match this with
+        | Up point -> { x = 0; y = 1 }
+        | Down point -> { x = 0; y = -1}
+        | Left point -> { x = -1; y = 0}
+        | Right point -> { x = 1; y = 0}
+        
+        
+type Tile = 
     
-let rec directionToPoints = function
-    | Direction.Up -> Single {x=0;y = 1}
-    | Direction.Down -> Single {x=0; y = -1}
-    | Direction.Left -> Single {x= -1; y=0}
-    | Direction.Right -> Single {x= 1; y=0}
-    | Direction.SplitHorizontal -> Double (getPointFromSingle (directionToPoints Direction.Left), getPointFromSingle (directionToPoints Direction.Right))
-    | Direction.SplitVertical -> Double (getPointFromSingle (directionToPoints Direction.Up), getPointFromSingle (directionToPoints Direction.Down))
-    | _ -> ArgumentOutOfRangeException() |> raise
+type TileEffect =
+    | None
+    | Reflect of Direction
+    | Split of Direction * Direction
+    
 
 
 type TileType =
