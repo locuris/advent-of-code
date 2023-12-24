@@ -1,31 +1,89 @@
 ﻿module day16
 
 open System
-open day10
+
 
 type Point = { x: int; y: int }
     with static member (+) (left, right) = { x = left.x + right.x; y = left.y + right.y }
+    
+    
+type MirrorAngle = 
+    | Forward = '/'
+    | Back = '\\'
+    
+type SplitAxis =
+    | Horizontal = '-'
+    | Vertical = '|'
+    
+type SplitResult =
+    | Continue = 0 
+    | Split = 1
+    
+    
 
 type Direction =
-    | Up of Point
-    | Down of Point
-    | Left of Point
-    | Right of Point
+    | Up 
+    | Down 
+    | Left 
+    | Right 
     
     member this.Point =
         match this with
-        | Up point -> { x = 0; y = 1 }
-        | Down point -> { x = 0; y = -1}
-        | Left point -> { x = -1; y = 0}
-        | Right point -> { x = 1; y = 0}
+        | Up -> { x = 0; y = 1 }
+        | Down -> { x = 0; y = -1}
+        | Left -> { x = -1; y = 0}
+        | Right -> { x = 1; y = 0}
+        
+    member this.ReflectedPoint angle =
+        let isForward = angle = MirrorAngle.Forward
+        match this with
+        | Up -> if isForward then Right else Left
+        | Down -> if isForward then Left else Right
+        | Left -> if isForward then Down else Up
+        | Right -> if isForward then Up else Down
+        
+    member this.SplitResult axis =
+        match this with
+        | Up | Down -> if axis = SplitAxis.Vertical then SplitResult.Continue else SplitResult.Split
+        | Left | Right -> if axis = SplitAxis.Vertical then SplitResult.Split else SplitResult.Continue
         
         
-type Tile = 
+        
+    member this.SplitPoint axis =
+        let isHorizontal = axis = SplitAxis.Horizontal
+        let splitResult = 
+        match this with
+        | 
+        
+
+type ITile =
+    abstract member Next : Direction -> Point
+
+type EmptyTile = {
+    Position: Point
+} with
+    interface ITile with
+        member this.Next (direction: Direction) =
+            this.Position + direction.Point
+        
+
+        
+type Mirror = {
+    Position: Point
+    Angle: MirrorAngle
+} with
+    interface ITile with
+        member this.Next (direction: Direction) =
+            this.Position + (this.Angle |> direction.ReflectedPoint).Point
+        
+        
+        
+        
+type Tile =
+    | Empty
+    | RightMirror of 
     
-type TileEffect =
-    | None
-    | Reflect of Direction
-    | Split of Direction * Direction
+
     
 
 
