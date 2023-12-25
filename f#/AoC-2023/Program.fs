@@ -64,9 +64,9 @@ let runAllDays() =
 [<EntryPoint>]
 let main argv =    
     (*runAllDays()*)
-    let day = 15
-    let part = 2
+    let day = 16
+    let part = 1
     
-    let input = getInput day false
+    let input = getInput day true
     getAnswer day part input
     0
