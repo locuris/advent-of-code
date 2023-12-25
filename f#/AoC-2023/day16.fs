@@ -79,14 +79,39 @@ type Direction =
             else
                 [| Up; Down |]
 
-type SingleBeamExit = { ExitDirection: Direction; Target: Point }
-type DoubleBeamExit = { First: SingleBeamExit; Second: SingleBeamExit }
+type SingleBeamExit =
+    { EntryDirection: Direction
+      Target: Point }
+
+type DoubleBeamExit =
+    { First: SingleBeamExit
+      Second: SingleBeamExit }
+
+    member this.DoublePoints = this.First.Target, this.Second.Target
 
 type BeamExit =
+    | Ignore
     | Single of SingleBeamExit
     | Double of DoubleBeamExit
-    
-type Beams = BeamExit array
+
+type Beams =
+    { Beams: Option<BeamExit> array }
+
+    member this.NoBeams =
+        not (this.Beams |> Array.exists Option.isSome)
+        
+    member this.GetExistingBeams =
+        this.Beams
+        |> Array.map (fun option ->
+            match option with
+            | None -> Ignore
+            | Some value -> value)
+        |> Array.filter (fun beamExit ->
+            match beamExit with
+            | Ignore -> false
+            | _ -> true)
+
+
 
 type ITile =
     abstract member Next: Direction -> Option<BeamExit>
@@ -102,10 +127,14 @@ type EmptyTile =
     interface ITile with
         member this.Next(direction: Direction) =
             this.IsEnergized <- true
+
             let horizontal =
                 match direction with
-                | Up | Down -> false
-                | Left | Right -> true
+                | Up
+                | Down -> false
+                | Left
+                | Right -> true
+
             if horizontal && this.BeamPassedHorizontal then
                 None
             else if not (horizontal) && this.BeamPassedVertical then
@@ -113,12 +142,18 @@ type EmptyTile =
             else
                 if horizontal then
                     this.BeamPassedHorizontal <- true
-                else this.BeamPassedVertical <- true
-                let beamExit = { ExitDirection = direction; Target = this.Position + direction.Point }
-                Some (Single(beamExit))
+                else
+                    this.BeamPassedVertical <- true
+
+                let beamExit =
+                    { EntryDirection = direction
+                      Target = this.Position + direction.Point }
+
+                Some(Single(beamExit))
+
         member this.GridPosition = this.Position
         member this.Energized = this.IsEnergized
-        
+
 
 
 
@@ -130,14 +165,14 @@ type Mirror =
       mutable ExitedRight: bool
       mutable ExitedDown: bool
       mutable ExitedLeft: bool }
-    
+
     member this.HasExited =
         function
         | Up -> this.ExitedUp
         | Down -> this.ExitedDown
         | Left -> this.ExitedLeft
         | Right -> this.ExitedRight
-        
+
     member this.Exit =
         function
         | Up -> this.ExitedUp <- true
@@ -149,12 +184,18 @@ type Mirror =
         member this.Next(direction: Direction) =
             this.IsEnergized <- true
             let exitDirection = this.Angle |> direction.ReflectedPoint
+
             if this.HasExited exitDirection then
                 None
-                else
+            else
                 this.Exit exitDirection
-                let beamExit = { ExitDirection = exitDirection; Target = this.Position + exitDirection.Point }
+
+                let beamExit =
+                    { EntryDirection = exitDirection
+                      Target = this.Position + exitDirection.Point }
+
                 Some(Single(beamExit))
+
         member this.GridPosition = this.Position
         member this.Energized = this.IsEnergized
 
@@ -170,39 +211,71 @@ type Splitter =
         member this.Next(direction: Direction) =
             this.IsEnergized <- true
             let exitPoints = direction.SplitPoints this.Axis
+
             if exitPoints.Length = 2 && this.BeamSplit then
                 None
             else if exitPoints.Length = 1 && this.BeamContinued then
                 None
+            else if exitPoints.Length = 2 then
+                this.BeamSplit <- true
+
+                Some(
+                    Double(
+                        { First =
+                            { EntryDirection = exitPoints[0]
+                              Target = this.Position + exitPoints[0].Point }
+                          Second =
+                            { EntryDirection = exitPoints[1]
+                              Target = this.Position + exitPoints[1].Point } }
+                    )
+                )
             else
-                if exitPoints.Length = 2 then
-                    this.BeamSplit <- true
-                    Some(
-                        Double({
-                            First = { ExitDirection = exitPoints[0]; Target = this.Position + exitPoints[0].Point }
-                            Second = { ExitDirection = exitPoints[1]; Target = this.Position + exitPoints[1].Point } 
-                            }))
-                else
-                    this.BeamContinued <- true
-                    Some(Single({ ExitDirection = exitPoints[0]; Target = this.Position + exitPoints[0].Point }))
+                this.BeamContinued <- true
+
+                Some(
+                    Single(
+                        { EntryDirection = exitPoints[0]
+                          Target = this.Position + exitPoints[0].Point }
+                    )
+                )
+
         member this.GridPosition = this.Position
         member this.Energized = this.IsEnergized
 
-type Grid = {
-    Map: Map<Point, ITile>; Size: Point
-} with
-    member this.Update (tile: ITile) =
-        { Map = this.Map |> Map.add tile.GridPosition tile; Size = this.Size }
+type Grid =
+    { TileMap: Map<Point, ITile>
+      Size: Point }
+
+    member this.Update(tile: ITile) =
+        { TileMap = this.TileMap |> Map.add tile.GridPosition tile
+          Size = this.Size }
         
-            
+    member this.UpdateAll(tiles: ITile array) =
+        let mutable updatedMap = this.TileMap
+        tiles |> Array.iter (fun tile -> updatedMap <- updatedMap |> Map.add tile.GridPosition tile)
+        { TileMap = updatedMap
+          Size = this.Size }
+
+    member this.PointOutOfBounds point = not (this.TileMap.ContainsKey point)
+
+    member this.DoubleWithinBounds(double: Point * Point) =
+        this.TileMap.ContainsKey(double |> fst)
+        && this.TileMap.ContainsKey(double |> snd)
+
+    member this.Item(key: Point) : ITile = this.TileMap[key]
+
+
+
+
 let createTile y x chr : ITile =
     let point = { X = x; Y = y }
 
     match chr with
-    | '.' -> { EmptyTile.Position = point
-               IsEnergized = false
-               BeamPassedHorizontal = false
-               BeamPassedVertical = false }
+    | '.' ->
+        { EmptyTile.Position = point
+          IsEnergized = false
+          BeamPassedHorizontal = false
+          BeamPassedVertical = false }
     | '-' ->
         { Position = point
           Axis = SplitAxis.Horizontal
@@ -232,22 +305,105 @@ let createTile y x chr : ITile =
           ExitedRight = false
           ExitedUp = false }
     | _ -> failwith "Invalid input character"
-    
-    
-let rec passBeam (beams: Beams) ()
+
+
+let rec passBeam (grid: Grid) (beams: Beams) : Grid =
+    let nextTiles =
+        beams.GetExistingBeams
+        |> Array.map (fun beam ->
+            match beam with
+            | Single singleBeamExit ->
+                if grid.PointOutOfBounds singleBeamExit.Target then
+                    [| None; None |]
+                else
+                    [| Some(grid[singleBeamExit.Target], singleBeamExit.EntryDirection); None |]
+            | Double doubleBeamExit ->
+                if grid.DoubleWithinBounds doubleBeamExit.DoublePoints then
+                    [| Some(grid[doubleBeamExit.First.Target], doubleBeamExit.First.EntryDirection); Some(grid[doubleBeamExit.Second.Target], doubleBeamExit.Second.EntryDirection)|]                       
+                else
+                    [| (if grid.PointOutOfBounds doubleBeamExit.First.Target then
+                            None
+                        else
+                            Some(grid[doubleBeamExit.First.Target], doubleBeamExit.First.EntryDirection));
+                    (if grid.PointOutOfBounds doubleBeamExit.Second.Target then
+                         None
+                     else
+                         Some(grid[doubleBeamExit.Second.Target], doubleBeamExit.Second.EntryDirection))|])
+        |> Array.collect id
+        |> Array.filter Option.isSome
+        |> Array.map Option.get
+        |> Array.map (fun (tile, direction) ->
+            tile.Next direction, tile)
+    let newGrid =
+        nextTiles
+        |> Array.map snd
+        |> grid.UpdateAll
+    let nextBeams =
+        { Beams = nextTiles |> Array.map fst }
+    if nextBeams.NoBeams then
+        newGrid
+    else
+        nextBeams |> passBeam newGrid
+        
 
 let part1 (lines: string array) : string =
-    let size = { X = lines[0].Length - 1; Y = lines.Length - 1}
-    let startBeam = { ExitDirection = Direction.Right; Target = { X = 0; Y = size.Y } }
-    let grid =
+    let size =
+        { X = lines[0].Length - 1
+          Y = lines.Length - 1 }
+
+    let startBeams =
+        let beam = { EntryDirection = Direction.Right; Target = { X = 0; Y = size.Y } }
+        let single = Single(beam)
+        { Beams = [| Some(single) |] }
+        
+
+    let tileMap =
         lines
         |> Array.rev
-        |> Array.mapi (fun y line ->
-            line.ToCharArray()
-            |> Array.mapi (createTile y))
+        |> Array.mapi (fun y line -> line.ToCharArray() |> Array.mapi (createTile y))
         |> Array.collect id
         |> Array.map (fun tile -> tile.GridPosition, tile)
         |> Map.ofArray
-    passBeam startBeam size grid 0 |> string
 
-let part2 (lines: string array) : string = failwithf "Not implemented yet"
+    let engergizedGrid = startBeams |> passBeam ({ TileMap = tileMap; Size = size })
+    engergizedGrid.TileMap.Values |> Seq.sumBy (fun tile -> if tile.Energized then 1 else 0) |> string
+        
+       
+
+let part2 (lines: string array) : string =
+    let size =
+        { X = lines[0].Length - 1
+          Y = lines.Length - 1 }
+
+    let startBeams =
+        let topEdge =
+            [|0..size.X|]
+            |> Array.map (fun x ->
+                Single({Target = { X = x; Y = size.Y }; EntryDirection = Direction.Down }))
+        let bottomEdge =
+            [|0..size.X|]
+            |> Array.map (fun x ->
+                Single({Target = { X = x; Y = 0 }; EntryDirection = Direction.Up }))
+        let leftEdge =
+            [|0..size.Y|]
+            |> Array.map (fun y ->
+                Single({Target = { X = 0; Y = y }; EntryDirection = Direction.Right }))
+        let rightEdge =
+            [|0..size.Y|]
+            |> Array.map (fun y ->
+                Single({Target = { X = size.X; Y = y }; EntryDirection = Direction.Left }))
+        topEdge |> Array.append bottomEdge |> Array.append leftEdge |> Array.append rightEdge |> Array.map (fun beam -> { Beams = [| Some(beam) |] })
+       
+            
+        
+
+    let tileMap =
+        lines
+        |> Array.rev
+        |> Array.mapi (fun y line -> line.ToCharArray() |> Array.mapi (createTile y))
+        |> Array.collect id
+        |> Array.map (fun tile -> tile.GridPosition, tile)
+        |> Map.ofArray
+
+    let engergizedGrids = startBeams |> Array.map (passBeam ({ TileMap = tileMap; Size = size }))
+    engergizedGrids |> Array.map (fun energizedGrid -> energizedGrid.TileMap.Values |> Seq.sumBy (fun tile -> if tile.Energized then 1 else 0)) |> Array.max |> string 
